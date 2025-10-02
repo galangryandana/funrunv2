@@ -478,7 +478,11 @@ export default function MalangFunRunPage() {
               <br className="md:hidden" />
               {" "}2025
             </h1>
-            <p className="text-xl md:text-2xl font-light">Rasakan refreshment langsung dari alam Kabupaten Probolinggo</p>
+            <p className="text-xl md:text-2xl font-light">
+              Rasakan refreshment langsung
+              <br className="md:hidden" />
+              {" "}dari alam Kabupaten Probolinggo
+            </p>
             <p className="text-sm md:text-base font-light">Part of `&quot;`Seven Lakes Festival`&quot;`</p>
           </div>
           <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-base">
