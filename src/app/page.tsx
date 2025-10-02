@@ -38,11 +38,12 @@ type FormData = {
   registrationChannel: RegistrationChannel;
   registrationChannelName: string;
   infoSource: InfoSource;
-  bloodType: "" | "A" | "B" | "O" | "AB";
+  bloodType: "" | "A+" | "A-" | "B+" | "B-" | "O+" | "O-" | "AB+" | "AB-";
   chronicCondition: YesNoValue;
   underDoctorCare: YesNoValue;
   requiresMedication: YesNoValue;
   experiencedComplications: YesNoValue;
+  experiencedFainting: YesNoValue;
   emergencyContactName: string;
   emergencyContactPhone: string;
   shirtSize: ShirtSize;
@@ -168,6 +169,7 @@ export default function MalangFunRunPage() {
     underDoctorCare: "",
     requiresMedication: "",
     experiencedComplications: "",
+    experiencedFainting: "",
     emergencyContactName: "",
     emergencyContactPhone: "",
     shirtSize: "",
@@ -222,6 +224,7 @@ export default function MalangFunRunPage() {
     requiresMedication: () => (!formData.requiresMedication ? "Pilih salah satu" : undefined),
     experiencedComplications: () =>
       !formData.experiencedComplications ? "Pilih salah satu" : undefined,
+    experiencedFainting: () => (!formData.experiencedFainting ? "Pilih salah satu" : undefined),
     emergencyContactName: () =>
       !formData.emergencyContactName.trim() ? "Nama kontak darurat wajib diisi" : undefined,
     emergencyContactPhone: () => {
@@ -391,6 +394,7 @@ export default function MalangFunRunPage() {
       underDoctorCare: "",
       requiresMedication: "",
       experiencedComplications: "",
+      experiencedFainting: "",
       emergencyContactName: "",
       emergencyContactPhone: "",
       shirtSize: "",
@@ -443,8 +447,14 @@ export default function MalangFunRunPage() {
               </p>
             </div>
             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-              <p className="text-sm text-yellow-800">
-                📧 Kami akan mengirimkan email konfirmasi ke alamat email Anda.
+              <p className="text-sm text-yellow-800 whitespace-pre-line">
+                📧 Kami akan mengirimkan email informasi ke email anda.
+                {"\n\n"}
+                Tunjukkan email ini kepada crew panitia kami di tempat pengambilan.
+                {"\n\n"}
+                Pengambilan Race Pack akan dilaksanakan pada tanggal 15 November 2025 di Venue Ranu Segaran pada pukul 10.00 - 21.00
+                {"\n\n"}
+                Informasi lebih lanjut hubungi Call Center di 082233444460
               </p>
             </div>
             <button
@@ -535,7 +545,7 @@ export default function MalangFunRunPage() {
             },
             {
               icon: Star,
-              title: "Hadiah Menarik",
+              title: "Hadiah Podium",
               description: "Uang pembinaan untuk para finisher podium",
               gradient: "from-teal-600 to-cyan-600",
             },
@@ -781,10 +791,14 @@ export default function MalangFunRunPage() {
                     columns="grid-cols-2 md:grid-cols-4"
                     onSelect={(value) => handleChange("bloodType", value as FormData["bloodType"])}
                     options={[
-                      { value: "A", label: "A" },
-                      { value: "B", label: "B" },
-                      { value: "O", label: "O" },
-                      { value: "AB", label: "AB" },
+                      { value: "A+", label: "A+" },
+                      { value: "A-", label: "A-" },
+                      { value: "B+", label: "B+" },
+                      { value: "B-", label: "B-" },
+                      { value: "O+", label: "O+" },
+                      { value: "O-", label: "O-" },
+                      { value: "AB+", label: "AB+" },
+                      { value: "AB-", label: "AB-" },
                     ]}
                   />
                   {errors.bloodType && <p className="text-sm text-red-500 mt-2">{errors.bloodType}</p>}
@@ -816,6 +830,13 @@ export default function MalangFunRunPage() {
                     label="Apakah Anda pernah mengalami komplikasi terkait penyakit saat berkegiatan fisik?"
                     value={formData.experiencedComplications}
                     error={errors.experiencedComplications}
+                    onChange={handleChange}
+                  />
+                  <YesNoField
+                    name="experiencedFainting"
+                    label="Apakah anda pernah atau sering mengalami pingsan?"
+                    value={formData.experiencedFainting}
+                    error={errors.experiencedFainting}
                     onChange={handleChange}
                   />
                 </div>
@@ -1081,7 +1102,7 @@ function OptionButtonGroup({ value, options, onSelect, columns = "grid-cols-1 md
   );
 }
 
-type YesNoFieldName = "chronicCondition" | "underDoctorCare" | "requiresMedication" | "experiencedComplications";
+type YesNoFieldName = "chronicCondition" | "underDoctorCare" | "requiresMedication" | "experiencedComplications" | "experiencedFainting";
 
 type YesNoFieldProps = {
   name: YesNoFieldName;
