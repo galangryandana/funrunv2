@@ -465,14 +465,12 @@ export default function MalangFunRunPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-700 via-emerald-800 to-teal-900">
       {/* Flyer Section */}
-      <div className="w-full bg-white py-4 md:py-6">
-        <div className="max-w-4xl mx-auto px-4">
-          <img 
-            src="/flyer.jpg" 
-            alt="Trail Run Ranu Segaran 2025 Flyer" 
-            className="w-full h-auto rounded-2xl shadow-2xl"
-          />
-        </div>
+      <div className="w-full">
+        <img 
+          src="/flyer.jpg" 
+          alt="Trail Run Ranu Segaran 2025 Flyer" 
+          className="w-full h-auto"
+        />
       </div>
 
       <div className="relative overflow-hidden">
