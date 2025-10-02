@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         first_name: formData.name.split(' ')[0] || formData.name,
         last_name: formData.name.split(' ').slice(1).join(' ') || '',
         email: formData.email,
-        phone: formData.emergencyContactPhone || '08123456789',
+        phone: formData.phoneNumber || '08123456789',
       },
       item_details: [
         {

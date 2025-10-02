@@ -612,36 +612,17 @@ export default function MalangFunRunPage() {
                   onChange={(field, value) => handleChange(field, value.replace(/\D/g, ""))}
                 />
                 <div>
-                  <p className="text-gray-700 font-semibold mb-2">Mendaftar untuk *</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                      { value: "self", label: "Dirimu sendiri", description: "Konfirmasi akan dikirim ke email ini" },
-                      { value: "other", label: "Orang lain", description: "Daftarkan peserta menggunakan email ini" },
-                    ].map(({ value, label, description }) => {
-                      const isActive = formData.registeringFor === value;
-                      return (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => handleChange("registeringFor", value as FormData["registeringFor"])}
-                          className={`relative overflow-hidden rounded-2xl p-6 text-left text-white transition-all duration-300 hover:shadow-lg ${
-                            isActive ? "ring-4 ring-blue-500 shadow-xl" : ""
-                          }`}
-                        >
-                          <div
-                            className={`absolute inset-0 bg-gradient-to-r ${
-                              value === "self" ? "from-blue-500 to-cyan-400" : "from-orange-500 to-red-400"
-                            } opacity-90`}
-                          />
-                          <div className="relative flex flex-col gap-2">
-                            <span className="font-bold text-lg">{label}</span>
-                            <span className="text-sm text-white/90">{description}</span>
-                          </div>
-                          {isActive && <CheckCircle className="absolute top-4 right-4 w-6 h-6" />}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Mendaftar untuk *</h3>
+                  <OptionButtonGroup
+                    value={formData.registeringFor}
+                    columns="grid-cols-1 md:grid-cols-2"
+                    onSelect={(value) => handleChange("registeringFor", value as FormData["registeringFor"])}
+                    options={[
+                      { value: "self", label: "Dirimu sendiri" },
+                      { value: "other", label: "Orang lain" },
+                    ]}
+                  />
+                  {errors.registeringFor && <p className="text-sm text-red-500 mt-2">{errors.registeringFor}</p>}
                 </div>
               </section>
             )}
