@@ -466,7 +466,7 @@ export default function MalangFunRunPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-700 via-emerald-800 to-teal-900">
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-black/30" />
-        <div className="relative mx-auto max-w-5xl px-4 py-12 md:py-16 text-center text-white space-y-4">
+        <div className="relative mx-auto max-w-5xl px-4 py-4 md:py-6 text-center text-white space-y-4">
           <div className="inline-flex items-center justify-center">
             <img 
               src="/logo.PNG" 
