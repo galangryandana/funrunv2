@@ -411,7 +411,7 @@ export default function MalangFunRunPage() {
     const genderLabel = formData.gender ? genderLabels[formData.gender] : "";
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-600 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-100 via-green-50 to-lime-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-2xl w-full transform transition-all duration-500 scale-100">
           <div className="text-center space-y-6">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full">
@@ -420,10 +420,10 @@ export default function MalangFunRunPage() {
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Pembayaran Berhasil! 🎉</h2>
               <p className="text-lg text-gray-600">
-                Terima kasih <span className="font-semibold text-blue-600">{formData.name}</span> telah mendaftar!
+                Terima kasih <span className="font-semibold text-emerald-600">{formData.name}</span> telah mendaftar!
               </p>
             </div>
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 text-left space-y-2">
+            <div className="bg-gradient-to-r from-emerald-50 to-lime-50 rounded-2xl p-6 text-left space-y-2">
               <h3 className="font-semibold text-gray-800">Detail Registrasi:</h3>
               <p><span className="font-medium">Nama Peserta:</span> {formData.name}</p>
               <p><span className="font-medium">Mendaftar untuk:</span> {registeringForLabels[formData.registeringFor]}</p>
@@ -449,7 +449,7 @@ export default function MalangFunRunPage() {
             </div>
             <button
               onClick={resetForm}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+              className="bg-gradient-to-r from-emerald-600 to-lime-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
             >
               Daftarkan Peserta Lain
             </button>
@@ -463,7 +463,7 @@ export default function MalangFunRunPage() {
     stepVisuals.length > 0 ? ((currentStep + 1) / stepVisuals.length) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-400 via-green-500 to-lime-400">
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-black/30" />
         <div className="relative mx-auto max-w-5xl px-4 py-16 md:py-24 text-center text-white space-y-6">
@@ -538,7 +538,7 @@ export default function MalangFunRunPage() {
             <div className="space-y-4">
               <div className="h-2 w-full rounded-full bg-slate-200">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-sky-500 transition-all duration-300"
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-green-500 to-lime-500 transition-all duration-300"
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
@@ -549,7 +549,7 @@ export default function MalangFunRunPage() {
                   const isReached = index <= currentStep;
 
                   const circleClasses = isReached
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg"
+                    ? "bg-gradient-to-r from-emerald-500 to-lime-500 text-white shadow-lg"
                     : "bg-slate-100 text-slate-400";
 
                   return (
@@ -845,7 +845,7 @@ export default function MalangFunRunPage() {
               <section className="space-y-4">
                 <h3 className="text-xl font-bold text-gray-800">Race Pack</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 text-gray-700 text-left">
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-6 text-gray-700 text-left">
                     Jersey dalam ukuran standar. Silakan dipilih sesuai tabel ukuran yang tertera.
                     Mohon diperhatikan bahwa penukaran ukuran tidak tersedia setelah pemilihan ini.
                   </div>
@@ -865,7 +865,7 @@ export default function MalangFunRunPage() {
                           onClick={() => handleChange("shirtSize", size)}
                           className={`py-2 px-4 rounded-lg font-semibold transition-all ${
                             isActive
-                              ? "bg-blue-600 text-white shadow-lg scale-105"
+                              ? "bg-emerald-600 text-white shadow-lg scale-105"
                               : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                           }`}
                         >
@@ -919,7 +919,7 @@ export default function MalangFunRunPage() {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="flex min-w-[140px] items-center justify-center rounded-full border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-all hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600"
+                  className="flex min-w-[140px] items-center justify-center rounded-full border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-all hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-600"
                 >
                   Kembali
                 </button>
@@ -929,7 +929,7 @@ export default function MalangFunRunPage() {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="flex min-w-[140px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+                  className="flex min-w-[140px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-600 to-lime-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
                 >
                   Selanjutnya
                   <ChevronRight className="w-5 h-5" />
@@ -941,7 +941,7 @@ export default function MalangFunRunPage() {
                   className={`flex items-center justify-center gap-2 rounded-full px-4 sm:px-6 py-3 font-semibold text-white transition-all text-sm sm:text-base ${
                     isLoading
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg hover:scale-105 hover:shadow-2xl"
+                      : "bg-gradient-to-r from-emerald-600 to-lime-600 shadow-lg hover:scale-105 hover:shadow-2xl"
                   }`}
                 >
                   {isLoading ? (
@@ -1060,7 +1060,7 @@ function OptionButtonGroup({ value, options, onSelect, columns = "grid-cols-1 md
             onClick={() => onSelect(option.value)}
             className={`relative overflow-hidden rounded-2xl p-4 text-left transition-all ${
               isActive
-                ? "ring-4 ring-blue-500 bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                ? "ring-4 ring-emerald-500 bg-gradient-to-r from-emerald-600 to-lime-600 text-white shadow-lg"
                 : "bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700"
             }`}
           >
