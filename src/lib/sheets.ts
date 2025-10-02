@@ -46,11 +46,12 @@ type FormDataForSheets = {
   registrationChannel: 'community' | 'company' | 'organization' | 'personal';
   registrationChannelName: string;
   infoSource: 'friend' | 'social_media' | 'print_media';
-  bloodType: 'A' | 'B' | 'O' | 'AB';
+  bloodType: 'A+' | 'A-' | 'B+' | 'B-' | 'O+' | 'O-' | 'AB+' | 'AB-';
   chronicCondition: 'yes' | 'no';
   underDoctorCare: 'yes' | 'no';
   requiresMedication: 'yes' | 'no';
   experiencedComplications: 'yes' | 'no';
+  experiencedFainting: 'yes' | 'no';
   emergencyContactName: string;
   emergencyContactPhone: string;
   shirtSize: string;
@@ -88,6 +89,7 @@ function convertToIndonesian(formData: FormDataForSheets) {
     underDoctorCare: LABEL_MAPS.yesNo[formData.underDoctorCare],
     requiresMedication: LABEL_MAPS.yesNo[formData.requiresMedication],
     experiencedComplications: LABEL_MAPS.yesNo[formData.experiencedComplications],
+    experiencedFainting: LABEL_MAPS.yesNo[formData.experiencedFainting],
   };
 }
 
@@ -121,6 +123,7 @@ export async function saveRegistrationToSheets(
         email: formData.email,
         phoneNumber: "'" + formData.phoneNumber, // Prefix untuk format text
         registeringFor: converted.registeringFor,
+        bibNumber: '', // Kosong saat create, akan diisi saat payment SUCCESS
         name: formData.name,
         birthDate: formData.birthDate,
         gender: converted.gender,
@@ -135,6 +138,7 @@ export async function saveRegistrationToSheets(
         underDoctorCare: converted.underDoctorCare,
         requiresMedication: converted.requiresMedication,
         experiencedComplications: converted.experiencedComplications,
+        experiencedFainting: converted.experiencedFainting,
         emergencyContactName: formData.emergencyContactName,
         emergencyContactPhone: "'" + formData.emergencyContactPhone, // Prefix untuk format text
         shirtSize: formData.shirtSize,
@@ -198,13 +202,15 @@ export async function updateRegistrationStatus(
       paymentDate?: string;
       transactionId?: string;
       paymentType?: string;
+      generateBibNumber?: boolean;
     } = {
       status: status,
     };
 
-    // Jika status SUCCESS, tambahkan payment info
+    // Jika status SUCCESS, tambahkan payment info dan trigger BIB number generation
     if (status === 'SUCCESS' && paymentData) {
       updateData.paymentDate = timestamp;
+      updateData.generateBibNumber = true; // Trigger Apps Script untuk generate BIB number
       if (paymentData.transactionId) {
         updateData.transactionId = paymentData.transactionId;
       }
