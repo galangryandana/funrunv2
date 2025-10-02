@@ -471,13 +471,20 @@ export default function MalangFunRunPage() {
             <Trophy className="w-12 h-12" />
           </div>
           <div>
-            <h1 className="text-4xl md:text-6xl font-bold">Trail Run Ranu Segaran 2025</h1>
-            <p className="text-xl md:text-2xl font-light">Berlari Untuk Kesehatan, Bersama Untuk Kebahagiaan</p>
+            <h1 className="text-4xl md:text-6xl font-bold">
+              TRAIL RUN
+              <br className="md:hidden" />
+              {" "}RANU SEGARAN
+              <br className="md:hidden" />
+              {" "}2025
+            </h1>
+            <p className="text-xl md:text-2xl font-light">Rasakan refreshment langsung dari alam Kabupaten Probolinggo</p>
+            <p className="text-sm md:text-base font-light">Part of `&quot;`Seven Lakes Festival`&quot;`</p>
           </div>
           <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-base">
             <span className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
               <Calendar className="w-5 h-5" />
-              15 Februari 2025
+              16 November 2025
             </span>
             <span className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
               <Clock className="w-5 h-5" />
@@ -485,7 +492,7 @@ export default function MalangFunRunPage() {
             </span>
             <span className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
               <MapPin className="w-5 h-5" />
-              Alun-Alun Kota Malang
+              Ranu Segaran, Kab. Probolinggo
             </span>
           </div>
         </div>
@@ -499,20 +506,20 @@ export default function MalangFunRunPage() {
           {[
             {
               icon: Award,
-              title: "Race Pack Premium",
-              description: "Kaos eksklusif, medali finisher, goodie bag, dan sertifikat elektronik",
+              title: "Race Pack",
+              description: "Jersey, Finisher Medali, Nomor BIB, Asuransi, Mineral Water & Snack, Kelapa Muda",
               gradient: "from-emerald-600 to-teal-500",
             },
             {
               icon: Heart,
               title: "Kesehatan & Keamanan",
-              description: "Tim medis profesional, water station setiap 2.5km, dan asuransi peserta",
+              description: "Tim medis profesional, degan station, dan asuransi peserta",
               gradient: "from-green-600 to-lime-600",
             },
             {
               icon: Star,
               title: "Hadiah Menarik",
-              description: "Total hadiah puluhan juta rupiah untuk para pemenang",
+              description: "Uang pembinaan untuk para finisher podium",
               gradient: "from-teal-600 to-cyan-600",
             },
           ].map(({ icon: Icon, title, description, gradient }) => (
