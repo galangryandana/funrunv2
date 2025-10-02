@@ -467,8 +467,12 @@ export default function MalangFunRunPage() {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-black/30" />
         <div className="relative mx-auto max-w-5xl px-4 py-16 md:py-24 text-center text-white space-y-6">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full">
-            <Trophy className="w-12 h-12" />
+          <div className="inline-flex items-center justify-center">
+            <img 
+              src="/logo.PNG" 
+              alt="Trail Run Ranu Segaran Logo" 
+              className="w-20 h-20 md:w-28 md:h-28 object-contain drop-shadow-2xl"
+            />
           </div>
           <div>
             <h1 className="text-4xl md:text-6xl font-bold">
