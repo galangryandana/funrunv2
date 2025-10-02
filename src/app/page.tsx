@@ -19,19 +19,6 @@ import {
   User,
 } from "lucide-react";
 
-declare global {
-  interface Window {
-    snap: {
-      pay: (token: string, options: {
-        onSuccess?: (result: any) => void;
-        onPending?: (result: any) => void;
-        onError?: (result: any) => void;
-        onClose?: () => void;
-      }) => void;
-    };
-  }
-}
-
 type ShirtSize = "" | "S" | "M" | "L" | "XL" | "XXL" | "XXXL";
 type RegistrationChannel = "" | "community" | "company" | "organization" | "personal";
 type InfoSource = "" | "friend" | "social_media" | "print_media";
@@ -82,11 +69,6 @@ const registrationChannelNamePlaceholders = {
   community: "Masukkan nama komunitas",
   company: "Masukkan nama perusahaan",
   organization: "Masukkan nama organisasi",
-} as const;
-const infoSourceLabels = {
-  friend: "Teman",
-  social_media: "Sosial Media",
-  print_media: "Media Cetak",
 } as const;
 const participantCategoryLabels = { student: "Pelajar", general: "Umum" } as const;
 const registeringForLabels = { self: "Dirimu sendiri", other: "Orang lain" } as const;
@@ -194,7 +176,6 @@ export default function MalangFunRunPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
   const validators: Record<keyof FormData, () => string | undefined> = {
@@ -340,7 +321,6 @@ export default function MalangFunRunPage() {
     }
 
     setIsLoading(true);
-    setIsProcessingPayment(true);
 
     try {
       const response = await fetch('/api/payment/create-transaction', {
@@ -364,21 +344,21 @@ export default function MalangFunRunPage() {
           onSuccess: function (result) {
             console.log('Payment success:', result);
             setIsSubmitted(true);
-            setIsProcessingPayment(false);
+
           },
           onPending: function (result) {
             console.log('Payment pending:', result);
             alert('Pembayaran Anda sedang diproses. Silakan cek email untuk konfirmasi.');
-            setIsProcessingPayment(false);
+
           },
           onError: function (result) {
             console.error('Payment error:', result);
             alert('Pembayaran gagal. Silakan coba lagi.');
-            setIsProcessingPayment(false);
+
           },
           onClose: function () {
             console.log('Payment popup closed');
-            setIsProcessingPayment(false);
+
             alert('Anda menutup popup pembayaran sebelum menyelesaikan pembayaran.');
           },
         });
@@ -389,7 +369,6 @@ export default function MalangFunRunPage() {
       console.error('Submit error:', error);
       alert(error instanceof Error ? error.message : 'Terjadi kesalahan');
       setIsLoading(false);
-      setIsProcessingPayment(false);
     }
   };
 
@@ -426,7 +405,6 @@ export default function MalangFunRunPage() {
     const registrationChannelLabel = formData.registrationChannel
       ? registrationChannelLabels[formData.registrationChannel]
       : "";
-    const infoSourceLabel = formData.infoSource ? infoSourceLabels[formData.infoSource] : "";
     const participantCategoryLabel = formData.participantCategory
       ? participantCategoryLabels[formData.participantCategory]
       : "";

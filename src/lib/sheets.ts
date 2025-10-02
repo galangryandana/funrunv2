@@ -193,7 +193,12 @@ export async function updateRegistrationStatus(
     const timestamp = getWIBTimestamp();
 
     // Prepare update data
-    const updateData: any = {
+    const updateData: {
+      status: string;
+      paymentDate?: string;
+      transactionId?: string;
+      paymentType?: string;
+    } = {
       status: status,
     };
 
