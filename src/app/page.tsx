@@ -471,7 +471,7 @@ export default function MalangFunRunPage() {
             <img 
               src="/logo.PNG" 
               alt="Trail Run Ranu Segaran Logo" 
-              className="w-20 h-20 md:w-28 md:h-28 object-contain drop-shadow-2xl"
+              className="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-2xl"
             />
           </div>
           <div>
@@ -960,8 +960,8 @@ export default function MalangFunRunPage() {
       </div>
 
       <footer className="mt-8 py-8 bg-black/50 text-white text-center">
-        <p className="mb-2">© 2025 Malang Fun Run. All rights reserved.</p>
-        <p className="text-sm opacity-75">Powered by Malang Running Community</p>
+        <p className="mb-2">© 2025 Trail Run Ranu Segaran. All rights reserved.</p>
+        <p className="text-sm opacity-75">Part of Seven Lakes Festival Kabupaten Probolinggo</p>
       </footer>
     </div>
   );
