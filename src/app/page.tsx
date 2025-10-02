@@ -471,7 +471,7 @@ export default function MalangFunRunPage() {
             <Trophy className="w-12 h-12" />
           </div>
           <div>
-            <h1 className="text-4xl md:text-6xl font-bold">MALANG FUN RUN 2025</h1>
+            <h1 className="text-4xl md:text-6xl font-bold">Trail Run Ranu Segaran 2025</h1>
             <p className="text-xl md:text-2xl font-light">Berlari Untuk Kesehatan, Bersama Untuk Kebahagiaan</p>
           </div>
           <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-base">

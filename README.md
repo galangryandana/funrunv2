@@ -1,4 +1,4 @@
-# Malang Fun Run 2025 (v2)
+# Trail Run Ranu Segaran 2025 (v2)
 
 Proyek ini adalah turunan mandiri dari portal Fun Run sebelumnya, tetapi disederhanakan menjadi satu halaman registrasi yang didesain ulang (hasil eksplorasi di Claude). Aplikasi tetap menggunakan Next.js 15 (App Router), Tailwind CSS v4, dan `lucide-react` untuk ikon.
 
@@ -25,7 +25,7 @@ Aplikasi dapat diakses di `http://localhost:3000`. Script tambahan:
 ```
 src/
   app/
-    page.tsx         # Halaman registrasi Malang Fun Run 2025
+    page.tsx         # Halaman registrasi Trail Run Ranu Segaran 2025
 ```
 
 ## Variabel Lingkungan
