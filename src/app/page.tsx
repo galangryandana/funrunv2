@@ -466,15 +466,15 @@ export default function MalangFunRunPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-700 via-emerald-800 to-teal-900">
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-black/30" />
-        <div className="relative mx-auto max-w-5xl px-4 py-16 md:py-24 text-center text-white space-y-6">
-          <div className="inline-flex items-center justify-center -my-8">
+        <div className="relative mx-auto max-w-5xl px-4 py-16 md:py-24 text-center text-white">
+          <div className="inline-flex items-center justify-center mb-2">
             <img 
               src="/logo.PNG" 
               alt="Trail Run Ranu Segaran Logo" 
               className="w-56 h-56 md:w-72 md:h-72 object-contain drop-shadow-2xl"
             />
           </div>
-          <div>
+          <div className="space-y-4 mb-6">
             <h1 className="text-4xl md:text-6xl font-bold">
               TRAIL RUN
               <br className="md:hidden" />
@@ -487,7 +487,7 @@ export default function MalangFunRunPage() {
               <br className="md:hidden" />
               {" "}dari alam Kabupaten Probolinggo
             </p>
-            <p className="text-sm md:text-base font-light">Part of `&quot;`Seven Lakes Festival`&quot;`</p>
+            <p className="text-sm md:text-base font-light">Part of &quot;Seven Lakes Festival&quot;</p>
           </div>
           <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-base">
             <span className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
