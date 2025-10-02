@@ -31,34 +31,34 @@ Buka Google Sheets Anda dan tambahkan kolom baru:
 1. Created At
 2. Updated At
 3. Order ID
-4. Status
-5. Payment Date
-6. Transaction ID
-7. Payment Type
-8. Email
-9. Nomor Telepon
-10. Mendaftar Untuk
-11. NOMOR BIB          ← KOLOM BARU!
-12. Nama Lengkap
-13. Tanggal Lahir
-14. Jenis Kelamin
-15. Alamat
-16. NIK
-17. Nama BIB
-18. Saluran Pendaftaran
-19. Nama Saluran
-20. Sumber Informasi
-21. Golongan Darah
-22. Penyakit Kronis
-23. Perawatan Dokter
-24. Minum Obat
-25. Komplikasi Fisik
-26. Pernah Pingsan     ← KOLOM BARU!
-27. Nama Kontak Darurat
-28. Nomor Kontak Darurat
-29. Ukuran Jersey
-30. Kategori Pendaftar
-31. Jumlah Pembayaran
+4. Email
+5. Nomor Telepon
+6. Mendaftar Untuk
+7. NOMOR BIB          ← KOLOM BARU!
+8. Nama Lengkap
+9. Tanggal Lahir
+10. Jenis Kelamin
+11. Alamat
+12. NIK
+13. Nama BIB
+14. Saluran Pendaftaran
+15. Nama Saluran
+16. Sumber Informasi
+17. Golongan Darah
+18. Penyakit Kronis
+19. Perawatan Dokter
+20. Minum Obat
+21. Komplikasi Fisik
+22. Pernah Pingsan     ← KOLOM BARU!
+23. Nama Kontak Darurat
+24. Nomor Kontak Darurat
+25. Ukuran Jersey
+26. Kategori Pendaftar
+27. Jumlah Pembayaran
+28. Status Pembayaran  ← PINDAH KE SINI (dari kolom 4)
+29. Payment Date       ← PINDAH KE SINI (dari kolom 5)
+30. Transaction ID     ← PINDAH KE SINI (dari kolom 6)
+31. Payment Type       ← PINDAH KE SINI (dari kolom 7)
 ```
 
 **Cara insert kolom:**
@@ -94,41 +94,41 @@ Hapus semua code yang ada dan paste code di bawah ini:
 
 // Configuration
 const SHEET_NAME = 'Registrations'; // Nama sheet Anda
-const BIB_COLUMN_INDEX = 11; // Kolom "Nomor BIB" (K = kolom ke-11)
+const BIB_COLUMN_INDEX = 7; // Kolom "Nomor BIB" (G = kolom ke-7)
 
 // Kolom mapping (sesuaikan dengan struktur sheet Anda)
 const COLUMNS = {
   CREATED_AT: 1,           // A: Created At
   UPDATED_AT: 2,           // B: Updated At
   ORDER_ID: 3,             // C: Order ID
-  STATUS: 4,               // D: Status
-  PAYMENT_DATE: 5,         // E: Payment Date
-  TRANSACTION_ID: 6,       // F: Transaction ID
-  PAYMENT_TYPE: 7,         // G: Payment Type
-  EMAIL: 8,                // H: Email
-  PHONE_NUMBER: 9,         // I: Nomor Telepon
-  REGISTERING_FOR: 10,     // J: Mendaftar Untuk
-  BIB_NUMBER: 11,          // K: Nomor BIB ← BARU!
-  NAME: 12,                // L: Nama Lengkap
-  BIRTH_DATE: 13,          // M: Tanggal Lahir
-  GENDER: 14,              // N: Jenis Kelamin
-  ADDRESS: 15,             // O: Alamat
-  NATIONAL_ID: 16,         // P: NIK
-  BIB_NAME: 17,            // Q: Nama BIB
-  REGISTRATION_CHANNEL: 18,// R: Saluran Pendaftaran
-  REGISTRATION_CHANNEL_NAME: 19, // S: Nama Saluran
-  INFO_SOURCE: 20,         // T: Sumber Informasi
-  BLOOD_TYPE: 21,          // U: Golongan Darah
-  CHRONIC_CONDITION: 22,   // V: Penyakit Kronis
-  UNDER_DOCTOR_CARE: 23,   // W: Perawatan Dokter
-  REQUIRES_MEDICATION: 24, // X: Minum Obat
-  EXPERIENCED_COMPLICATIONS: 25, // Y: Komplikasi Fisik
-  EXPERIENCED_FAINTING: 26,      // Z: Pernah Pingsan ← BARU!
-  EMERGENCY_CONTACT_NAME: 27,    // AA: Nama Kontak Darurat
-  EMERGENCY_CONTACT_PHONE: 28,   // AB: Nomor Kontak Darurat
-  SHIRT_SIZE: 29,          // AC: Ukuran Jersey
-  PARTICIPANT_CATEGORY: 30,// AD: Kategori Pendaftar
-  AMOUNT: 31               // AE: Jumlah Pembayaran
+  EMAIL: 4,                // D: Email
+  PHONE_NUMBER: 5,         // E: Nomor Telepon
+  REGISTERING_FOR: 6,      // F: Mendaftar Untuk
+  BIB_NUMBER: 7,           // G: Nomor BIB ← BARU!
+  NAME: 8,                 // H: Nama Lengkap
+  BIRTH_DATE: 9,           // I: Tanggal Lahir
+  GENDER: 10,              // J: Jenis Kelamin
+  ADDRESS: 11,             // K: Alamat
+  NATIONAL_ID: 12,         // L: NIK
+  BIB_NAME: 13,            // M: Nama BIB
+  REGISTRATION_CHANNEL: 14,// N: Saluran Pendaftaran
+  REGISTRATION_CHANNEL_NAME: 15, // O: Nama Saluran
+  INFO_SOURCE: 16,         // P: Sumber Informasi
+  BLOOD_TYPE: 17,          // Q: Golongan Darah
+  CHRONIC_CONDITION: 18,   // R: Penyakit Kronis
+  UNDER_DOCTOR_CARE: 19,   // S: Perawatan Dokter
+  REQUIRES_MEDICATION: 20, // T: Minum Obat
+  EXPERIENCED_COMPLICATIONS: 21, // U: Komplikasi Fisik
+  EXPERIENCED_FAINTING: 22,      // V: Pernah Pingsan ← BARU!
+  EMERGENCY_CONTACT_NAME: 23,    // W: Nama Kontak Darurat
+  EMERGENCY_CONTACT_PHONE: 24,   // X: Nomor Kontak Darurat
+  SHIRT_SIZE: 25,          // Y: Ukuran Jersey
+  PARTICIPANT_CATEGORY: 26,// Z: Kategori Pendaftar
+  AMOUNT: 27,              // AA: Jumlah Pembayaran
+  STATUS: 28,              // AB: Status Pembayaran (PINDAH KE SINI)
+  PAYMENT_DATE: 29,        // AC: Payment Date (PINDAH KE SINI)
+  TRANSACTION_ID: 30,      // AD: Transaction ID (PINDAH KE SINI)
+  PAYMENT_TYPE: 31         // AE: Payment Type (PINDAH KE SINI)
 };
 
 /**
@@ -173,34 +173,34 @@ function createRegistration(data) {
       data.createdAt || '',                    // A: Created At
       data.updatedAt || '',                    // B: Updated At
       data.orderId || '',                      // C: Order ID
-      'PENDING',                               // D: Status (default PENDING)
-      '',                                      // E: Payment Date (kosong)
-      '',                                      // F: Transaction ID (kosong)
-      '',                                      // G: Payment Type (kosong)
-      data.email || '',                        // H: Email
-      data.phoneNumber || '',                  // I: Nomor Telepon
-      data.registeringFor || '',               // J: Mendaftar Untuk
-      '',                                      // K: Nomor BIB (kosong saat create)
-      data.name || '',                         // L: Nama Lengkap
-      data.birthDate || '',                    // M: Tanggal Lahir
-      data.gender || '',                       // N: Jenis Kelamin
-      data.address || '',                      // O: Alamat
-      data.nationalId || '',                   // P: NIK
-      data.bibName || '',                      // Q: Nama BIB
-      data.registrationChannel || '',          // R: Saluran Pendaftaran
-      data.registrationChannelName || '',      // S: Nama Saluran
-      data.infoSource || '',                   // T: Sumber Informasi
-      data.bloodType || '',                    // U: Golongan Darah
-      data.chronicCondition || '',             // V: Penyakit Kronis
-      data.underDoctorCare || '',              // W: Perawatan Dokter
-      data.requiresMedication || '',           // X: Minum Obat
-      data.experiencedComplications || '',     // Y: Komplikasi Fisik
-      data.experiencedFainting || '',          // Z: Pernah Pingsan
-      data.emergencyContactName || '',         // AA: Nama Kontak Darurat
-      data.emergencyContactPhone || '',        // AB: Nomor Kontak Darurat
-      data.shirtSize || '',                    // AC: Ukuran Jersey
-      data.participantCategory || '',          // AD: Kategori Pendaftar
-      data.amount || 0                         // AE: Jumlah Pembayaran
+      data.email || '',                        // D: Email
+      data.phoneNumber || '',                  // E: Nomor Telepon
+      data.registeringFor || '',               // F: Mendaftar Untuk
+      '',                                      // G: Nomor BIB (kosong saat create)
+      data.name || '',                         // H: Nama Lengkap
+      data.birthDate || '',                    // I: Tanggal Lahir
+      data.gender || '',                       // J: Jenis Kelamin
+      data.address || '',                      // K: Alamat
+      data.nationalId || '',                   // L: NIK
+      data.bibName || '',                      // M: Nama BIB
+      data.registrationChannel || '',          // N: Saluran Pendaftaran
+      data.registrationChannelName || '',      // O: Nama Saluran
+      data.infoSource || '',                   // P: Sumber Informasi
+      data.bloodType || '',                    // Q: Golongan Darah
+      data.chronicCondition || '',             // R: Penyakit Kronis
+      data.underDoctorCare || '',              // S: Perawatan Dokter
+      data.requiresMedication || '',           // T: Minum Obat
+      data.experiencedComplications || '',     // U: Komplikasi Fisik
+      data.experiencedFainting || '',          // V: Pernah Pingsan
+      data.emergencyContactName || '',         // W: Nama Kontak Darurat
+      data.emergencyContactPhone || '',        // X: Nomor Kontak Darurat
+      data.shirtSize || '',                    // Y: Ukuran Jersey
+      data.participantCategory || '',          // Z: Kategori Pendaftar
+      data.amount || 0,                        // AA: Jumlah Pembayaran
+      'PENDING',                               // AB: Status (default PENDING)
+      '',                                      // AC: Payment Date (kosong)
+      '',                                      // AD: Transaction ID (kosong)
+      ''                                       // AE: Payment Type (kosong)
     ];
 
     // Append row
@@ -418,13 +418,13 @@ Pembayaran 100: BIB = 0100
 
 **Contoh data setelah update:**
 
-| Order ID | Status | BIB | Nama | Golongan Darah | Pingsan | ... |
-|----------|--------|-----|------|----------------|---------|-----|
-| ORD001   | PENDING| (kosong) | John Doe | O+ | Tidak | ... |
-| ORD002   | SUCCESS| 0001 | Jane Smith | A- | Ya | ... |
-| ORD003   | SUCCESS| 0002 | Bob Wilson | B+ | Tidak | ... |
-| ORD004   | FAILED | (kosong) | Alice Brown | AB- | Ya | ... |
-| ORD005   | SUCCESS| 0003 | Charlie Lee | O- | Tidak | ... |
+| Order ID | Email | ... | BIB | Nama | ... | Jumlah | Status | Payment Date |
+|----------|-------|-----|-----|------|-----|--------|--------|--------------|
+| ORD001   | john@email.com | ... | (kosong) | John Doe | ... | 150000 | PENDING | (kosong) |
+| ORD002   | jane@email.com | ... | 0001 | Jane Smith | ... | 150000 | SUCCESS | 2025-11-16 10:30:00 |
+| ORD003   | bob@email.com | ... | 0002 | Bob Wilson | ... | 150000 | SUCCESS | 2025-11-16 10:35:00 |
+| ORD004   | alice@email.com | ... | (kosong) | Alice Brown | ... | 150000 | FAILED | (kosong) |
+| ORD005   | charlie@email.com | ... | 0003 | Charlie Lee | ... | 150000 | SUCCESS | 2025-11-16 10:40:00 |
 
 ---
 

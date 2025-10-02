@@ -15,7 +15,6 @@ import {
   Phone,
   ShoppingBag,
   Star,
-  Trophy,
   User,
 } from "lucide-react";
 
@@ -476,6 +475,7 @@ export default function MalangFunRunPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-700 via-emerald-800 to-teal-900">
       {/* Flyer Section */}
       <div className="w-full">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
           src="/flyer.jpg" 
           alt="Trail Run Ranu Segaran 2025 Flyer" 
@@ -487,6 +487,7 @@ export default function MalangFunRunPage() {
         <div className="absolute inset-0 bg-black/30" />
         <div className="relative mx-auto max-w-5xl px-4 pt-6 pb-16 md:pt-8 md:pb-24 text-center text-white">
           <div className="inline-flex items-center justify-center mt-4 mb-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src="/logo.PNG" 
               alt="Trail Run Ranu Segaran Logo" 
