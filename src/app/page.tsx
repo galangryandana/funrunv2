@@ -47,7 +47,9 @@ type FormData = {
   emergencyContactPhone: string;
   shirtSize: ShirtSize;
   participantCategory: ParticipantCategory;
-  agreedToTerms: boolean;
+  agreedToTerm1: boolean;
+  agreedToTerm2: boolean;
+  agreedToTerm3: boolean;
 };
 
 type FormErrors = Partial<Record<keyof FormData, string>>;
@@ -130,7 +132,7 @@ const stepConfigs: StepConfig[] = [
     key: "payment",
     title: "Pembayaran",
     description: "Tentukan kategori pendaftar dan cek ringkasan data Anda.",
-    fields: ["participantCategory", "agreedToTerms"],
+    fields: ["participantCategory", "agreedToTerm1", "agreedToTerm2", "agreedToTerm3"],
   },
 ];
 
@@ -174,7 +176,9 @@ export default function MalangFunRunPage() {
     emergencyContactPhone: "",
     shirtSize: "",
     participantCategory: "",
-    agreedToTerms: false,
+    agreedToTerm1: false,
+    agreedToTerm2: false,
+    agreedToTerm3: false,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -237,7 +241,9 @@ export default function MalangFunRunPage() {
     shirtSize: () => (!formData.shirtSize ? "Pilih ukuran jersey" : undefined),
     participantCategory: () =>
       !formData.participantCategory ? "Pilih kategori pendaftar" : undefined,
-    agreedToTerms: () => (!formData.agreedToTerms ? "Anda harus menyetujui ketentuan untuk melanjutkan" : undefined),
+    agreedToTerm1: () => (!formData.agreedToTerm1 ? "Anda harus menyetujui ketentuan ini" : undefined),
+    agreedToTerm2: () => (!formData.agreedToTerm2 ? "Anda harus menyetujui ketentuan ini" : undefined),
+    agreedToTerm3: () => (!formData.agreedToTerm3 ? "Anda harus menyetujui ketentuan ini" : undefined),
   };
 
   const runValidation = (fieldNames: (keyof FormData)[]) => {
@@ -401,7 +407,9 @@ export default function MalangFunRunPage() {
       emergencyContactPhone: "",
       shirtSize: "",
       participantCategory: "",
-      agreedToTerms: false,
+      agreedToTerm1: false,
+      agreedToTerm2: false,
+      agreedToTerm3: false,
     });
     setErrors({});
     setIsSubmitted(false);
@@ -432,16 +440,14 @@ export default function MalangFunRunPage() {
             </div>
 
             {/* BIB Number Highlight */}
-            <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 shadow-xl border-4 border-green-400">
-              <div className="text-center space-y-2">
-                <p className="text-white text-lg font-semibold">Nomor BIB Anda</p>
-                <div className="bg-white rounded-xl py-4 px-6 inline-block">
-                  <p className="text-5xl md:text-6xl font-bold text-green-600">
-                    ####
-                  </p>
-                </div>
-                <p className="text-white text-sm mt-3">
-                  Nomor BIB akan dikirimkan via email setelah pembayaran terkonfirmasi
+            <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-6">
+              <div className="text-center space-y-3">
+                <p className="text-gray-600 text-base font-medium">Nama BIB Anda</p>
+                <p className="text-4xl md:text-5xl font-bold text-green-600">
+                  {formData.bibName}
+                </p>
+                <p className="text-gray-500 text-sm mt-3">
+                  Nomor BIB (0001, 0002, dst) akan dikirimkan via email setelah pembayaran terkonfirmasi
                 </p>
               </div>
             </div>
@@ -967,37 +973,52 @@ export default function MalangFunRunPage() {
                     </p>
                   </div>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <label className="flex items-start gap-3 cursor-pointer group">
                       <input
                         type="checkbox"
-                        checked={formData.agreedToTerms}
-                        onChange={(e) => handleChange("agreedToTerms", e.target.checked)}
+                        checked={formData.agreedToTerm1}
+                        onChange={(e) => handleChange("agreedToTerm1", e.target.checked)}
                         className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
                       />
                       <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
-                        <span className="font-semibold">✅ Dengan mendaftar atau berpartisipasi dalam Trail Run Ranu Segaran 2025, peserta menyetujui semua Ketentuan dan kondisi yang berlaku.</span>
+                        ✅ Dengan mendaftar atau berpartisipasi dalam Trail Run Ranu Segaran 2025, peserta menyetujui semua Ketentuan dan kondisi yang berlaku.
                       </span>
                     </label>
+                    {errors.agreedToTerm1 && (
+                      <p className="text-sm text-red-500 ml-8">{errors.agreedToTerm1}</p>
+                    )}
                     
-                    <label className="flex items-start gap-3 cursor-pointer group pl-8">
-                      <span className="text-sm text-gray-700 leading-relaxed">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={formData.agreedToTerm2}
+                        onChange={(e) => handleChange("agreedToTerm2", e.target.checked)}
+                        className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                      />
+                      <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
                         ✅ Saya setuju bahwa panitia berhak menggunakan data dan dokumentasi peserta untuk keperluan pihak ketiga atau terkait
                       </span>
                     </label>
+                    {errors.agreedToTerm2 && (
+                      <p className="text-sm text-red-500 ml-8">{errors.agreedToTerm2}</p>
+                    )}
                     
-                    <label className="flex items-start gap-3 cursor-pointer group pl-8">
-                      <span className="text-sm text-gray-700 leading-relaxed">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={formData.agreedToTerm3}
+                        onChange={(e) => handleChange("agreedToTerm3", e.target.checked)}
+                        className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                      />
+                      <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
                         ✅ Saya setuju bahwa biaya registrasi tidak dapat dikembalikan apabila saya batal berpartisipasi baik karena alasan pribadi maupun force majeure, seperti bencana alam atau wabah penyakit yang mengakibatkan acara tidak terselenggara
                       </span>
                     </label>
+                    {errors.agreedToTerm3 && (
+                      <p className="text-sm text-red-500 ml-8">{errors.agreedToTerm3}</p>
+                    )}
                   </div>
-                  
-                  {errors.agreedToTerms && (
-                    <p className="text-sm text-red-500 mt-2">
-                      {errors.agreedToTerms}
-                    </p>
-                  )}
                 </div>
               </section>
             )}
