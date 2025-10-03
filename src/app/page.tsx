@@ -612,9 +612,9 @@ export default function MalangFunRunPage() {
             </div>
             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
               <p className="text-sm text-yellow-800 whitespace-pre-line">
-                📧 Kami akan mengirimkan email informasi ke email anda.
+                📧 Kami akan mengirimkan informasi pendaftaran ke email anda.
                 {"\n\n"}
-                Tunjukkan email ini kepada crew panitia kami di tempat pengambilan.
+                Screenshoot Pembayaran Berhasil beserta data register  diatas / tunjukkan informasi pendaftaran yang terkirim di email Anda kepada crew panitia kami di tempat Registrasi & Pengambilan Racepack.
                 {"\n\n"}
                 Pengambilan Race Pack akan dilaksanakan pada tanggal 15 November 2025 di Venue Ranu Segaran pada pukul 10.00 - 21.00
                 {"\n\n"}
