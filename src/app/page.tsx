@@ -183,49 +183,54 @@ export default function MalangFunRunPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isFetchingBibPage, setIsFetchingBibPage] = useState(false); // NEW: Loading page state
   const [currentStep, setCurrentStep] = useState(0);
   const [orderId, setOrderId] = useState<string>("");
   const [bibNumber, setBibNumber] = useState<string | null>(null);
-  const [isFetchingBib, setIsFetchingBib] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
 
-  // Fetch BIB number setelah payment success dengan polling optimized
+  // Fetch BIB number di loading page
   useEffect(() => {
     const fetchBibNumber = async () => {
-      if (isSubmitted && orderId && !bibNumber) {
-        setIsFetchingBib(true);
+      if (isFetchingBibPage && orderId && !bibNumber) {
         try {
           // Optimized polling: cepat di awal, lebih lambat kemudian
           let attempts = 0;
-          const maxAttempts = 20; // Lebih banyak attempts
+          const maxAttempts = 20;
           
-          // Delays dengan exponential backoff (cepat dulu, lalu pelan)
+          // Delays dengan exponential backoff
           const getDelay = (attempt: number) => {
-            if (attempt < 3) return 500;      // 0.5 detik untuk 3 attempt pertama
-            if (attempt < 6) return 1000;     // 1 detik untuk attempt 4-6
-            if (attempt < 10) return 2000;    // 2 detik untuk attempt 7-10
-            return 3000;                       // 3 detik untuk sisa attempts
+            if (attempt < 5) return 1000;      // 1 detik untuk 5 attempt pertama
+            if (attempt < 10) return 2000;     // 2 detik untuk attempt 6-10
+            return 3000;                        // 3 detik untuk sisa
           };
 
-          while (attempts < maxAttempts) {
+          while (attempts < maxAttempts && isFetchingBibPage) {
             console.log(`Fetching BIB attempt ${attempts + 1}/${maxAttempts}...`);
             
-            const response = await fetch('/api/registration/get-bib', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ orderId }),
-            });
+            try {
+              const response = await fetch('/api/registration/get-bib', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ orderId }),
+              });
 
-            const data = await response.json();
+              const data = await response.json();
 
-            if (data.success && data.bibNumber) {
-              console.log('BIB number fetched:', data.bibNumber);
-              setBibNumber(data.bibNumber);
-              break;
+              if (data.success && data.bibNumber) {
+                console.log('BIB number fetched successfully:', data.bibNumber);
+                setBibNumber(data.bibNumber);
+                setIsFetchingBibPage(false); // Hide loading page
+                setIsSubmitted(true); // Show success page
+                return;
+              }
+            } catch (error) {
+              console.error('Fetch attempt failed:', error);
             }
 
-            // Jika belum ada BIB, tunggu dengan delay yang tepat dan retry
+            // Retry dengan delay
             attempts++;
             if (attempts < maxAttempts) {
               const delay = getDelay(attempts);
@@ -233,19 +238,18 @@ export default function MalangFunRunPage() {
             }
           }
 
-          if (!bibNumber && attempts >= maxAttempts) {
-            console.warn('Max attempts reached, BIB not available yet');
-          }
+          // Timeout: max attempts reached
+          console.warn('Max attempts reached, showing error');
+          setFetchError(true);
         } catch (error) {
           console.error('Error fetching BIB number:', error);
-        } finally {
-          setIsFetchingBib(false);
+          setFetchError(true);
         }
       }
     };
 
     fetchBibNumber();
-  }, [isSubmitted, orderId, bibNumber]);
+  }, [isFetchingBibPage, orderId, bibNumber]);
 
   const validators: Record<keyof FormData, () => string | undefined> = {
     email: () => {
@@ -421,7 +425,7 @@ export default function MalangFunRunPage() {
         window.snap.pay(data.token, {
           onSuccess: function (result) {
             console.log('Payment success:', result);
-            setIsSubmitted(true);
+            setIsFetchingBibPage(true); // Show loading page, fetch BIB
           },
           onPending: function (result) {
             console.log('Payment pending:', result);
@@ -482,6 +486,73 @@ export default function MalangFunRunPage() {
     setCurrentStep(0);
   };
 
+  // Loading page: Fetching BIB number
+  if (isFetchingBibPage) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-700 via-emerald-800 to-teal-900 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-2xl w-full text-center space-y-8">
+          {!fetchError ? (
+            <>
+              {/* Loading Animation */}
+              <div className="flex justify-center">
+                <div className="relative">
+                  <div className="animate-spin rounded-full h-24 w-24 border-b-4 border-green-600"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <CheckCircle className="w-12 h-12 text-green-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Loading Text */}
+              <div className="space-y-3">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
+                  Pembayaran Berhasil!
+                </h2>
+                <p className="text-lg text-gray-600">
+                  Mohon tunggu sebentar...
+                </p>
+                <p className="text-base text-gray-500">
+                  Kami sedang mengambil nomor BIB Anda dari sistem
+                </p>
+              </div>
+
+              {/* Progress Info */}
+              <div className="bg-green-50 rounded-xl p-4">
+                <p className="text-sm text-green-800">
+                  Proses ini biasanya memakan waktu 5-10 detik
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Error State */}
+              <div className="space-y-6">
+                <div className="text-red-600">
+                  <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Gagal Mengambil Nomor BIB
+                </h2>
+                <p className="text-gray-600">
+                  Pembayaran Anda sudah berhasil, namun nomor BIB belum dapat ditampilkan.
+                  Silakan refresh halaman ini atau hubungi panitia.
+                </p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                >
+                  Refresh Halaman
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (isSubmitted) {
     const registrationChannelLabel = formData.registrationChannel
       ? registrationChannelLabels[formData.registrationChannel]
@@ -508,25 +579,9 @@ export default function MalangFunRunPage() {
             {/* BIB Number Highlight */}
             <div className="text-center space-y-3">
               <p className="text-gray-700 text-lg font-medium">Nomor BIB Anda Adalah</p>
-              {isFetchingBib ? (
-                <div className="flex flex-col items-center justify-center gap-3">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-                  <div className="text-center">
-                    <p className="text-gray-700 font-medium">Sedang memproses pembayaran...</p>
-                    <p className="text-gray-500 text-sm mt-1">
-                      Nomor BIB akan muncul dalam beberapa detik
-                    </p>
-                  </div>
-                </div>
-              ) : bibNumber ? (
-                <p className="text-5xl md:text-6xl font-bold text-green-600">
-                  {bibNumber}
-                </p>
-              ) : (
-                <p className="text-gray-500 text-sm">
-                  Nomor BIB akan segera ditampilkan setelah pembayaran terkonfirmasi
-                </p>
-              )}
+              <p className="text-5xl md:text-6xl font-bold text-green-600">
+                {bibNumber || "----"}
+              </p>
             </div>
 
             <div className="bg-gradient-to-r from-emerald-50 to-lime-50 rounded-2xl p-6 text-left space-y-2">
