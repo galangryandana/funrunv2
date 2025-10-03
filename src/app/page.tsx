@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Award,
@@ -184,6 +184,53 @@ export default function MalangFunRunPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [orderId, setOrderId] = useState<string>("");
+  const [bibNumber, setBibNumber] = useState<string | null>(null);
+  const [isFetchingBib, setIsFetchingBib] = useState(false);
+
+  // Fetch BIB number setelah payment success
+  useEffect(() => {
+    const fetchBibNumber = async () => {
+      if (isSubmitted && orderId && !bibNumber) {
+        setIsFetchingBib(true);
+        try {
+          // Retry logic karena BIB generation butuh waktu setelah webhook
+          let attempts = 0;
+          const maxAttempts = 10;
+          const retryDelay = 3000; // 3 detik
+
+          while (attempts < maxAttempts) {
+            const response = await fetch('/api/registration/get-bib', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ orderId }),
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.bibNumber) {
+              setBibNumber(data.bibNumber);
+              break;
+            }
+
+            // Jika belum ada BIB, tunggu dan retry
+            attempts++;
+            if (attempts < maxAttempts) {
+              await new Promise(resolve => setTimeout(resolve, retryDelay));
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching BIB number:', error);
+        } finally {
+          setIsFetchingBib(false);
+        }
+      }
+    };
+
+    fetchBibNumber();
+  }, [isSubmitted, orderId, bibNumber]);
 
   const validators: Record<keyof FormData, () => string | undefined> = {
     email: () => {
@@ -348,6 +395,11 @@ export default function MalangFunRunPage() {
         throw new Error(data.error || 'Gagal membuat transaksi');
       }
 
+      // Save orderId untuk fetch BIB number nanti
+      if (data.orderId) {
+        setOrderId(data.orderId);
+      }
+
       setIsLoading(false);
 
       if (window.snap) {
@@ -355,7 +407,6 @@ export default function MalangFunRunPage() {
           onSuccess: function (result) {
             console.log('Payment success:', result);
             setIsSubmitted(true);
-
           },
           onPending: function (result) {
             console.log('Payment pending:', result);
@@ -440,16 +491,22 @@ export default function MalangFunRunPage() {
             </div>
 
             {/* BIB Number Highlight */}
-            <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-6">
-              <div className="text-center space-y-3">
-                <p className="text-gray-600 text-base font-medium">Nama BIB Anda</p>
-                <p className="text-4xl md:text-5xl font-bold text-green-600">
-                  {formData.bibName}
+            <div className="text-center space-y-2">
+              <p className="text-gray-700 text-lg font-medium">Nomor BIB Anda Adalah</p>
+              {isFetchingBib ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                  <p className="text-gray-500">Memuat nomor BIB...</p>
+                </div>
+              ) : bibNumber ? (
+                <p className="text-5xl md:text-6xl font-bold text-green-600">
+                  {bibNumber}
                 </p>
-                <p className="text-gray-500 text-sm mt-3">
-                  Nomor BIB (0001, 0002, dst) akan dikirimkan via email setelah pembayaran terkonfirmasi
+              ) : (
+                <p className="text-gray-500 text-sm">
+                  Nomor BIB akan segera ditampilkan setelah pembayaran terkonfirmasi
                 </p>
-              </div>
+              )}
             </div>
 
             <div className="bg-gradient-to-r from-emerald-50 to-lime-50 rounded-2xl p-6 text-left space-y-2">
@@ -982,7 +1039,7 @@ export default function MalangFunRunPage() {
                         className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
                       />
                       <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
-                        ✅ Dengan mendaftar atau berpartisipasi dalam Trail Run Ranu Segaran 2025, peserta menyetujui semua Ketentuan dan kondisi yang berlaku.
+                        Dengan mendaftar atau berpartisipasi dalam Trail Run Ranu Segaran 2025, peserta menyetujui semua Ketentuan dan kondisi yang berlaku.
                       </span>
                     </label>
                     {errors.agreedToTerm1 && (
@@ -997,7 +1054,7 @@ export default function MalangFunRunPage() {
                         className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
                       />
                       <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
-                        ✅ Saya setuju bahwa panitia berhak menggunakan data dan dokumentasi peserta untuk keperluan pihak ketiga atau terkait
+                        Saya setuju bahwa panitia berhak menggunakan data dan dokumentasi peserta untuk keperluan pihak ketiga atau terkait
                       </span>
                     </label>
                     {errors.agreedToTerm2 && (
@@ -1012,7 +1069,7 @@ export default function MalangFunRunPage() {
                         className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
                       />
                       <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
-                        ✅ Saya setuju bahwa biaya registrasi tidak dapat dikembalikan apabila saya batal berpartisipasi baik karena alasan pribadi maupun force majeure, seperti bencana alam atau wabah penyakit yang mengakibatkan acara tidak terselenggara
+                        Saya setuju bahwa biaya registrasi tidak dapat dikembalikan apabila saya batal berpartisipasi baik karena alasan pribadi maupun force majeure, seperti bencana alam atau wabah penyakit yang mengakibatkan acara tidak terselenggara
                       </span>
                     </label>
                     {errors.agreedToTerm3 && (

@@ -143,6 +143,8 @@ function doPost(e) {
       return createRegistration(data.data);
     } else if (action === 'update') {
       return updateRegistration(data.orderId, data.data);
+    } else if (action === 'getBib') {
+      return getBibNumber(data.orderId);
     } else {
       return ContentService.createTextOutput(
         JSON.stringify({ success: false, error: 'Invalid action' })
@@ -326,6 +328,56 @@ function generateNextBibNumber(sheet) {
     Logger.log('Error generating BIB number: ' + error.toString());
     // Fallback: return 0001 jika error
     return '0001';
+  }
+}
+
+/**
+ * GET BIB: Ambil nomor BIB dan status berdasarkan Order ID
+ */
+function getBibNumber(orderId) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_NAME);
+
+    if (!sheet) {
+      throw new Error('Sheet "' + SHEET_NAME + '" not found');
+    }
+
+    // Find row by Order ID
+    const dataRange = sheet.getDataRange();
+    const values = dataRange.getValues();
+    let rowIndex = -1;
+
+    for (let i = 1; i < values.length; i++) { // Skip header row
+      if (values[i][COLUMNS.ORDER_ID - 1] === orderId) {
+        rowIndex = i;
+        break;
+      }
+    }
+
+    if (rowIndex === -1) {
+      throw new Error('Order ID not found: ' + orderId);
+    }
+
+    // Get BIB number and status
+    const bibNumber = values[rowIndex][COLUMNS.BIB_NUMBER - 1];
+    const status = values[rowIndex][COLUMNS.STATUS - 1];
+
+    Logger.log('BIB fetched for ' + orderId + ': ' + bibNumber + ' (Status: ' + status + ')');
+
+    return ContentService.createTextOutput(
+      JSON.stringify({ 
+        success: true, 
+        bibNumber: bibNumber || null,
+        status: status || 'PENDING'
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    Logger.log('Error fetching BIB number: ' + error.toString());
+    return ContentService.createTextOutput(
+      JSON.stringify({ success: false, error: error.toString() })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
