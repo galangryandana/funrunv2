@@ -193,6 +193,8 @@ export default function MalangFunRunPage() {
   useEffect(() => {
     const fetchBibNumber = async () => {
       if (isFetchingBibPage && orderId && !bibNumber) {
+        console.log('=== Starting BIB fetch ===');
+        console.log('Order ID:', orderId);
         try {
           // Optimized polling: cepat di awal, lebih lambat kemudian
           let attempts = 0;
@@ -218,6 +220,7 @@ export default function MalangFunRunPage() {
               });
 
               const data = await response.json();
+              console.log(`Attempt ${attempts + 1} response:`, data);
 
               if (data.success && data.bibNumber) {
                 console.log('BIB number fetched successfully:', data.bibNumber);
@@ -416,7 +419,10 @@ export default function MalangFunRunPage() {
 
       // Save orderId untuk fetch BIB number nanti
       if (data.orderId) {
+        console.log('Order ID saved:', data.orderId);
         setOrderId(data.orderId);
+      } else {
+        console.error('WARNING: No orderId in response!', data);
       }
 
       setIsLoading(false);
@@ -425,6 +431,7 @@ export default function MalangFunRunPage() {
         window.snap.pay(data.token, {
           onSuccess: function (result) {
             console.log('Payment success:', result);
+            console.log('Current orderId state:', orderId);
             setIsFetchingBibPage(true); // Show loading page, fetch BIB
           },
           onPending: function (result) {
