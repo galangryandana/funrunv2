@@ -188,18 +188,27 @@ export default function MalangFunRunPage() {
   const [bibNumber, setBibNumber] = useState<string | null>(null);
   const [isFetchingBib, setIsFetchingBib] = useState(false);
 
-  // Fetch BIB number setelah payment success
+  // Fetch BIB number setelah payment success dengan polling optimized
   useEffect(() => {
     const fetchBibNumber = async () => {
       if (isSubmitted && orderId && !bibNumber) {
         setIsFetchingBib(true);
         try {
-          // Retry logic karena BIB generation butuh waktu setelah webhook
+          // Optimized polling: cepat di awal, lebih lambat kemudian
           let attempts = 0;
-          const maxAttempts = 10;
-          const retryDelay = 3000; // 3 detik
+          const maxAttempts = 20; // Lebih banyak attempts
+          
+          // Delays dengan exponential backoff (cepat dulu, lalu pelan)
+          const getDelay = (attempt: number) => {
+            if (attempt < 3) return 500;      // 0.5 detik untuk 3 attempt pertama
+            if (attempt < 6) return 1000;     // 1 detik untuk attempt 4-6
+            if (attempt < 10) return 2000;    // 2 detik untuk attempt 7-10
+            return 3000;                       // 3 detik untuk sisa attempts
+          };
 
           while (attempts < maxAttempts) {
+            console.log(`Fetching BIB attempt ${attempts + 1}/${maxAttempts}...`);
+            
             const response = await fetch('/api/registration/get-bib', {
               method: 'POST',
               headers: {
@@ -211,15 +220,21 @@ export default function MalangFunRunPage() {
             const data = await response.json();
 
             if (data.success && data.bibNumber) {
+              console.log('BIB number fetched:', data.bibNumber);
               setBibNumber(data.bibNumber);
               break;
             }
 
-            // Jika belum ada BIB, tunggu dan retry
+            // Jika belum ada BIB, tunggu dengan delay yang tepat dan retry
             attempts++;
             if (attempts < maxAttempts) {
-              await new Promise(resolve => setTimeout(resolve, retryDelay));
+              const delay = getDelay(attempts);
+              await new Promise(resolve => setTimeout(resolve, delay));
             }
+          }
+
+          if (!bibNumber && attempts >= maxAttempts) {
+            console.warn('Max attempts reached, BIB not available yet');
           }
         } catch (error) {
           console.error('Error fetching BIB number:', error);
@@ -491,12 +506,17 @@ export default function MalangFunRunPage() {
             </div>
 
             {/* BIB Number Highlight */}
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-3">
               <p className="text-gray-700 text-lg font-medium">Nomor BIB Anda Adalah</p>
               {isFetchingBib ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
-                  <p className="text-gray-500">Memuat nomor BIB...</p>
+                <div className="flex flex-col items-center justify-center gap-3">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                  <div className="text-center">
+                    <p className="text-gray-700 font-medium">Sedang memproses pembayaran...</p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      Nomor BIB akan muncul dalam beberapa detik
+                    </p>
+                  </div>
                 </div>
               ) : bibNumber ? (
                 <p className="text-5xl md:text-6xl font-bold text-green-600">

@@ -178,7 +178,7 @@ function createRegistration(data) {
       data.email || '',                        // D: Email
       data.phoneNumber || '',                  // E: Nomor Telepon
       data.registeringFor || '',               // F: Mendaftar Untuk
-      '',                                      // G: Nomor BIB (kosong saat create)
+      '',                                      // G: Nomor BIB (kosong, akan diisi saat payment SUCCESS)
       data.name || '',                         // H: Nama Lengkap
       data.birthDate || '',                    // I: Tanggal Lahir
       data.gender || '',                       // J: Jenis Kelamin
