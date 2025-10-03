@@ -47,6 +47,7 @@ type FormData = {
   emergencyContactPhone: string;
   shirtSize: ShirtSize;
   participantCategory: ParticipantCategory;
+  agreedToTerms: boolean;
 };
 
 type FormErrors = Partial<Record<keyof FormData, string>>;
@@ -129,7 +130,7 @@ const stepConfigs: StepConfig[] = [
     key: "payment",
     title: "Pembayaran",
     description: "Tentukan kategori pendaftar dan cek ringkasan data Anda.",
-    fields: ["participantCategory"],
+    fields: ["participantCategory", "agreedToTerms"],
   },
 ];
 
@@ -173,6 +174,7 @@ export default function MalangFunRunPage() {
     emergencyContactPhone: "",
     shirtSize: "",
     participantCategory: "",
+    agreedToTerms: false,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -205,7 +207,7 @@ export default function MalangFunRunPage() {
     bibName: () => {
       const bibName = formData.bibName.trim();
       if (!bibName) return "Nama BIB wajib diisi";
-      if (bibName.length > 10) return "Nama BIB maksimal 10 karakter";
+      if (bibName.length > 15) return "Nama BIB maksimal 15 karakter";
       return undefined;
     },
     registrationChannel: () =>
@@ -235,6 +237,7 @@ export default function MalangFunRunPage() {
     shirtSize: () => (!formData.shirtSize ? "Pilih ukuran jersey" : undefined),
     participantCategory: () =>
       !formData.participantCategory ? "Pilih kategori pendaftar" : undefined,
+    agreedToTerms: () => (!formData.agreedToTerms ? "Anda harus menyetujui ketentuan untuk melanjutkan" : undefined),
   };
 
   const runValidation = (fieldNames: (keyof FormData)[]) => {
@@ -398,6 +401,7 @@ export default function MalangFunRunPage() {
       emergencyContactPhone: "",
       shirtSize: "",
       participantCategory: "",
+      agreedToTerms: false,
     });
     setErrors({});
     setIsSubmitted(false);
@@ -426,6 +430,22 @@ export default function MalangFunRunPage() {
                 Terima kasih <span className="font-semibold text-emerald-600">{formData.name}</span> telah mendaftar!
               </p>
             </div>
+
+            {/* BIB Number Highlight */}
+            <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 shadow-xl border-4 border-green-400">
+              <div className="text-center space-y-2">
+                <p className="text-white text-lg font-semibold">Nomor BIB Anda</p>
+                <div className="bg-white rounded-xl py-4 px-6 inline-block">
+                  <p className="text-5xl md:text-6xl font-bold text-green-600">
+                    ####
+                  </p>
+                </div>
+                <p className="text-white text-sm mt-3">
+                  Nomor BIB akan dikirimkan via email setelah pembayaran terkonfirmasi
+                </p>
+              </div>
+            </div>
+
             <div className="bg-gradient-to-r from-emerald-50 to-lime-50 rounded-2xl p-6 text-left space-y-2">
               <h3 className="font-semibold text-gray-800">Detail Registrasi:</h3>
               <p><span className="font-medium">Nama Peserta:</span> {formData.name}</p>
@@ -727,12 +747,12 @@ export default function MalangFunRunPage() {
                         label="Nama di BIB Number *"
                         name="bibName"
                         value={formData.bibName}
-                        placeholder="Maksimal 10 karakter"
+                        placeholder="Maksimal 15 karakter"
                         error={errors.bibName}
-                        maxLength={10}
+                        maxLength={15}
                         onChange={(field, value) => handleChange(field, value.toUpperCase())}
                       />
-                      <p className="text-sm text-gray-500 mt-1">Maksimal 10 karakter</p>
+                      <p className="text-sm text-gray-500 mt-1">Maksimal 15 karakter</p>
                     </div>
                   </div>
                 </div>
@@ -937,6 +957,47 @@ export default function MalangFunRunPage() {
                   <p>
                     <span className="font-medium">Kategori:</span> {formData.participantCategory ? participantCategoryLabels[formData.participantCategory] : "-"}
                   </p>
+                </div>
+
+                {/* Terms & Conditions */}
+                <div className="border-t pt-6 space-y-4">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Harap membaca ketentuan berikut dengan cermat sebelum lanjut ke langkah berikutnya. Dengan menyetujui secara elektronik, Anda mengakui bahwa Anda telah membaca dan memahami semua teks yang disajikan kepada Anda sebagai bagian dari proses pendaftaran.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={formData.agreedToTerms}
+                        onChange={(e) => handleChange("agreedToTerms", e.target.checked)}
+                        className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                      />
+                      <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
+                        <span className="font-semibold">✅ Dengan mendaftar atau berpartisipasi dalam Trail Run Ranu Segaran 2025, peserta menyetujui semua Ketentuan dan kondisi yang berlaku.</span>
+                      </span>
+                    </label>
+                    
+                    <label className="flex items-start gap-3 cursor-pointer group pl-8">
+                      <span className="text-sm text-gray-700 leading-relaxed">
+                        ✅ Saya setuju bahwa panitia berhak menggunakan data dan dokumentasi peserta untuk keperluan pihak ketiga atau terkait
+                      </span>
+                    </label>
+                    
+                    <label className="flex items-start gap-3 cursor-pointer group pl-8">
+                      <span className="text-sm text-gray-700 leading-relaxed">
+                        ✅ Saya setuju bahwa biaya registrasi tidak dapat dikembalikan apabila saya batal berpartisipasi baik karena alasan pribadi maupun force majeure, seperti bencana alam atau wabah penyakit yang mengakibatkan acara tidak terselenggara
+                      </span>
+                    </label>
+                  </div>
+                  
+                  {errors.agreedToTerms && (
+                    <p className="text-sm text-red-500 mt-2">
+                      {errors.agreedToTerms}
+                    </p>
+                  )}
                 </div>
               </section>
             )}
