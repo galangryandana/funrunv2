@@ -43,6 +43,15 @@ const config: Config = {
     'text-slate-800',
     'text-gray-500',
     
+    // Border radius (rounded corners)
+    'rounded',
+    'rounded-sm',
+    'rounded-md',
+    'rounded-lg',
+    'rounded-xl',
+    'rounded-2xl',
+    'rounded-full',
+    
     // Additional utilities
     'scale-105',
     'cursor-not-allowed',
@@ -103,10 +112,10 @@ const config: Config = {
         },
       },
       borderRadius: {
-        lg: 'var(--radius-lg)',
-        md: 'var(--radius-md)',
-        sm: 'var(--radius-sm)',
-        xl: 'var(--radius-xl)',
+        lg: 'var(--radius-lg, 0.625rem)',
+        md: 'var(--radius-md, 0.5rem)',
+        sm: 'var(--radius-sm, 0.375rem)',
+        xl: 'var(--radius-xl, 0.875rem)',
       },
     },
   },
