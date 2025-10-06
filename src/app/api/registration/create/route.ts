@@ -1,44 +1,20 @@
 import { NextResponse } from 'next/server';
-
-/**
- * Transform data English to Indonesian for Google Sheets
- */
-function transformToIndonesian(data: any) {
-  return {
-    ...data,
-    // Transform registeringFor: self/other → Diri Sendiri/Orang Lain
-    registeringFor: data.registeringFor === 'self' ? 'Diri Sendiri' : 'Orang Lain',
-    
-    // Transform gender: male/female → Pria/Wanita
-    gender: data.gender === 'male' ? 'Pria' : data.gender === 'female' ? 'Wanita' : data.gender,
-    
-    // Transform registrationChannel
-    registrationChannel: {
-      'community': 'Komunitas',
-      'company': 'Perusahaan',
-      'organization': 'Organisasi',
-      'personal': 'Personal'
-    }[data.registrationChannel] || data.registrationChannel,
-    
-    // Transform infoSource
-    infoSource: {
-      'friend': 'Teman',
-      'social_media': 'Sosial Media',
-      'print_media': 'Media Cetak'
-    }[data.infoSource] || data.infoSource,
-    
-    // Transform yes/no fields to Ya/Tidak
-    chronicCondition: data.chronicCondition === 'yes' ? 'Ya' : data.chronicCondition === 'no' ? 'Tidak' : data.chronicCondition,
-    underDoctorCare: data.underDoctorCare === 'yes' ? 'Ya' : data.underDoctorCare === 'no' ? 'Tidak' : data.underDoctorCare,
-    requiresMedication: data.requiresMedication === 'yes' ? 'Ya' : data.requiresMedication === 'no' ? 'Tidak' : data.requiresMedication,
-    experiencedComplications: data.experiencedComplications === 'yes' ? 'Ya' : data.experiencedComplications === 'no' ? 'Tidak' : data.experiencedComplications,
-    experiencedFainting: data.experiencedFainting === 'yes' ? 'Ya' : data.experiencedFainting === 'no' ? 'Tidak' : data.experiencedFainting,
-  };
-}
+import {
+  transformToIndonesian,
+  type RegistrationFormInput,
+} from '../utils';
 
 export async function POST(request: Request) {
   try {
-    const { formData } = await request.json();
+    const body = (await request.json()) as { formData?: RegistrationFormInput };
+    const { formData } = body;
+
+    if (!formData) {
+      return NextResponse.json(
+        { error: 'Form data tidak ditemukan' },
+        { status: 400 }
+      );
+    }
 
     // Validate required fields
     if (!formData.email || !formData.name || !formData.nationalId) {
