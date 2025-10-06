@@ -843,7 +843,7 @@ export default function MalangFunRunPage() {
             {
               icon: Star,
               title: "Hadiah Podium",
-              description: "Uang pembinaan untuk juara tercepat nomor 1, 2, dan 3",
+              description: "Uang pembinaan untuk finisher tercepat nomor 1, 2, dan 3",
               gradient: "from-teal-600 to-cyan-600",
             },
           ].map(({ icon: Icon, title, description, gradient }) => (
@@ -979,10 +979,11 @@ export default function MalangFunRunPage() {
                       <p className="text-sm text-gray-500 mt-1">Sesuai data eKTP / Akta Kelahiran</p>
                     </div>
                     <FieldText
-                      type="date"
+                      type="text"
                       label="Tanggal Lahir *"
                       name="birthDate"
                       value={formData.birthDate}
+                      placeholder="DD/MM/YYYY (Contoh: 29/02/1985)"
                       error={errors.birthDate}
                       onChange={handleChange}
                     />
