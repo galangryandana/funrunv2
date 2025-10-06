@@ -1,19 +1,15 @@
 export type RegisteringForOption = 'self' | 'other';
 export type GenderOption = '' | 'male' | 'female';
 export type RegistrationChannelOption = '' | 'community' | 'company' | 'organization' | 'personal';
-export type InfoSourceOption = '' | 'friend' | 'social_media' | 'print_media';
+export type InfoSourceOption = '' | 'friend' | 'social_media' | 'billboard';
 export type YesNoOption = '' | 'yes' | 'no';
-export type ShirtSizeOption = '' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL';
+export type ShirtSizeOption = '' | 'S' | 'M' | 'L' | 'XL' | 'XXL';
 export type BloodTypeOption =
   | ''
-  | 'A+'
-  | 'A-'
-  | 'B+'
-  | 'B-'
-  | 'O+'
-  | 'O-'
-  | 'AB+'
-  | 'AB-';
+  | 'A'
+  | 'B'
+  | 'O'
+  | 'AB';
 
 export type RegistrationFormInput = {
   email: string;
@@ -75,7 +71,7 @@ const infoSourceMap: Record<InfoSourceOption, string> = {
   '': '',
   friend: 'Teman',
   social_media: 'Sosial Media',
-  print_media: 'Media Cetak',
+  billboard: 'Papan Reklame',
 };
 
 const yesNoMap: Record<YesNoOption, string> = {

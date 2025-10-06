@@ -19,9 +19,9 @@ import {
   User,
 } from "lucide-react";
 
-type ShirtSize = "" | "S" | "M" | "L" | "XL" | "XXL" | "XXXL";
+type ShirtSize = "" | "S" | "M" | "L" | "XL" | "XXL";
 type RegistrationChannel = "" | "community" | "company" | "organization" | "personal";
-type InfoSource = "" | "friend" | "social_media" | "print_media";
+type InfoSource = "" | "friend" | "social_media" | "billboard";
 type YesNoValue = "" | "yes" | "no";
 
 type FormData = {
@@ -37,7 +37,7 @@ type FormData = {
   registrationChannel: RegistrationChannel;
   registrationChannelName: string;
   infoSource: InfoSource;
-  bloodType: "" | "A+" | "A-" | "B+" | "B-" | "O+" | "O-" | "AB+" | "AB-";
+  bloodType: "" | "A" | "B" | "O" | "AB";
   chronicCondition: YesNoValue;
   underDoctorCare: YesNoValue;
   requiresMedication: YesNoValue;
@@ -53,7 +53,7 @@ type FormData = {
 
 type FormErrors = Partial<Record<keyof FormData, string>>;
 
-const shirtSizes: ShirtSize[] = ["S", "M", "L", "XL", "XXL", "XXXL"];
+const shirtSizes: ShirtSize[] = ["S", "M", "L", "XL", "XXL"];
 
 const genderLabels = { male: "Pria", female: "Wanita" } as const;
 const registrationChannelLabels = {
@@ -1067,7 +1067,7 @@ export default function MalangFunRunPage() {
                     options={[
                       { value: "friend", label: "Teman" },
                       { value: "social_media", label: "Sosial Media" },
-                      { value: "print_media", label: "Media Cetak" },
+                      { value: "billboard", label: "Papan Reklame" },
                     ]}
                   />
                   {errors.infoSource && <p className="text-sm text-red-500">{errors.infoSource}</p>}
@@ -1085,14 +1085,10 @@ export default function MalangFunRunPage() {
                     columns="grid-cols-2 md:grid-cols-4"
                     onSelect={(value) => handleChange("bloodType", value as FormData["bloodType"])}
                     options={[
-                      { value: "A+", label: "A+" },
-                      { value: "A-", label: "A-" },
-                      { value: "B+", label: "B+" },
-                      { value: "B-", label: "B-" },
-                      { value: "O+", label: "O+" },
-                      { value: "O-", label: "O-" },
-                      { value: "AB+", label: "AB+" },
-                      { value: "AB-", label: "AB-" },
+                      { value: "A", label: "A" },
+                      { value: "B", label: "B" },
+                      { value: "O", label: "O" },
+                      { value: "AB", label: "AB" },
                     ]}
                   />
                   {errors.bloodType && <p className="text-sm text-red-500 mt-2">{errors.bloodType}</p>}
