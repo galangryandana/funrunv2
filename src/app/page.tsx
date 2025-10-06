@@ -737,9 +737,15 @@ export default function MalangFunRunPage() {
             </div>
             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
               <p className="text-sm text-yellow-800 whitespace-pre-line">
-                Screenshoot Halaman Ini (Nomor BIB & data peserta), tunjukkan beserta bukti pembayaran kepada crew panitia di Pos Registrasi untuk Pengambilan Race Pack.
+                Screenshoot Halaman Ini (Nomor BIB & data peserta), tunjukkan beserta bukti pembayaran kepada crew panitia di Pos Registrasi untuk Pengambilan Race Pack
                 {"\n\n"}
-                Pengambilan Race Pack akan dilaksanakan pada tanggal 15 November 2025 di Venue Lapangan Desa Ranu Segaran pada pukul 10.00 - 21.00
+                Pengambilan Race Pack akan dilaksanakan pada tanggal
+                {"\n"}
+                15 November 2025
+                {"\n"}
+                Di Venue Lapangan Ranu Segaran pada pukul
+                {"\n"}
+                11.00 - 21.00
                 {"\n\n"}
                 Informasi lebih lanjut hubungi Call Center di
                 {"\n"}
@@ -825,19 +831,19 @@ export default function MalangFunRunPage() {
             {
               icon: Award,
               title: "Race Pack",
-              description: "Jersey, Finisher Medali, Nomor BIB, Asuransi, Mineral Water & Snack, Kelapa Muda",
+              description: "Jersey, Finisher Medali (S&K Berlaku), Nomor BIB, Asuransi, Mineral Water & Snack, Kelapa Muda",
               gradient: "from-emerald-600 to-teal-500",
             },
             {
               icon: Heart,
               title: "Kesehatan & Keamanan",
-              description: "Tim medis profesional, degan station, dan asuransi peserta",
+              description: "Tim medis profesional dan asuransi peserta",
               gradient: "from-green-600 to-lime-600",
             },
             {
               icon: Star,
               title: "Hadiah Podium",
-              description: "Uang pembinaan untuk para finisher podium",
+              description: "Uang pembinaan untuk juara tercepat nomor 1, 2, dan 3",
               gradient: "from-teal-600 to-cyan-600",
             },
           ].map(({ icon: Icon, title, description, gradient }) => (
