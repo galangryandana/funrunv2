@@ -34,36 +34,11 @@ export async function POST(request: NextRequest) {
     // ✅ Transform data to Indonesian before sending to Google Sheets
     const transformedData = transformToIndonesian(formData);
 
-    // Prepare data untuk Apps Script
+    // Prepare data untuk Apps Script (structure matches Apps Script expectations)
     const payload = {
       action: 'update', // ✅ Action UPDATE
       orderId: orderId, // ✅ orderId = nationalId (Nomor KTP)
-      data: {
-        email: transformedData.email,
-        phoneNumber: transformedData.phoneNumber,
-        registeringFor: transformedData.registeringFor,
-        name: transformedData.name,
-        birthDate: transformedData.birthDate,
-        gender: transformedData.gender,
-        address: transformedData.address,
-        nationalId: transformedData.nationalId,
-        bibName: transformedData.bibName,
-        registrationChannel: transformedData.registrationChannel,
-        registrationChannelName: transformedData.registrationChannelName,
-        infoSource: transformedData.infoSource,
-        bloodType: transformedData.bloodType,
-        chronicCondition: transformedData.chronicCondition,
-        underDoctorCare: transformedData.underDoctorCare,
-        requiresMedication: transformedData.requiresMedication,
-        experiencedComplications: transformedData.experiencedComplications,
-        experiencedFainting: transformedData.experiencedFainting,
-        emergencyContactName: transformedData.emergencyContactName,
-        emergencyContactPhone: transformedData.emergencyContactPhone,
-        shirtSize: transformedData.shirtSize,
-        // Payment amount dan BIB number TIDAK berubah
-        paymentAmount: paymentAmount,
-        bibNumber: bibNumber,
-      },
+      data: transformedData, // ✅ Send transformed data directly (Apps Script will preserve BIB & paymentAmount)
     };
 
     console.log('🔄 Updating registration:', orderId);

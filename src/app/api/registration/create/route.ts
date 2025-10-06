@@ -36,35 +36,10 @@ export async function POST(request: NextRequest) {
     // ✅ Transform data to Indonesian before sending to Google Sheets
     const transformedData = transformToIndonesian(formData);
 
-    // Prepare data for Google Sheets
+    // Prepare data for Google Sheets (structure matches Apps Script expectations)
     const registrationData = {
       action: 'create',
-      data: {
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        orderId: orderId,
-        email: transformedData.email,
-        phoneNumber: transformedData.phoneNumber,
-        registeringFor: transformedData.registeringFor,
-        name: transformedData.name,
-        birthDate: transformedData.birthDate,
-        gender: transformedData.gender,
-        address: transformedData.address,
-        nationalId: transformedData.nationalId,
-        bibName: transformedData.bibName,
-        registrationChannel: transformedData.registrationChannel,
-        registrationChannelName: transformedData.registrationChannelName || '',
-        infoSource: transformedData.infoSource,
-        bloodType: transformedData.bloodType,
-        chronicCondition: transformedData.chronicCondition,
-        underDoctorCare: transformedData.underDoctorCare,
-        requiresMedication: transformedData.requiresMedication,
-        experiencedComplications: transformedData.experiencedComplications,
-        experiencedFainting: transformedData.experiencedFainting,
-        emergencyContactName: transformedData.emergencyContactName,
-        emergencyContactPhone: transformedData.emergencyContactPhone,
-        shirtSize: transformedData.shirtSize,
-      },
+      data: transformedData, // ✅ Send transformed data directly
     };
 
     // Send to Google Sheets
