@@ -1,52 +1,16 @@
-# 📝 APPS SCRIPT - AUTO BIB GENERATION
+# 🔧 PERBAIKAN APPS SCRIPT - 3 KOREKSI
 
-## 🎯 OVERVIEW
+## 📋 MASALAH YANG DIPERBAIKI
 
-Sistem ini akan **auto-generate** BIB number dan Payment Amount bersamaan:
-- **Pendaftar 1**: BIB `0001` + Payment `Rp 200.001`
-- **Pendaftar 2**: BIB `0002` + Payment `Rp 200.002`
-- **Pendaftar 150**: BIB `0150` + Payment `Rp 200.150`
-
-**BIB di-generate IMMEDIATELY saat registrasi!**
+1. ✅ **Nomor BIB** terupload dengan format **0005** (bukan 5)
+2. ✅ **Bukti pembayaran** disimpan di **1 folder utama** (tanpa subfolder)
+3. ✅ **Nama file bukti pembayaran**: `NamaPeserta_NomorKTP.ext`
 
 ---
 
-## 📊 GOOGLE SHEETS COLUMN MAPPING
+## 🔧 KODE APPS SCRIPT YANG SUDAH DIPERBAIKI
 
-Berdasarkan struktur kolom Anda:
-
-| No | Column Name | Code Variable | Example |
-|----|-------------|---------------|---------|
-| 1 | Created At | CREATED_AT | 2025-06-01 10:30:00 |
-| 2 | Updated At | UPDATED_AT | 2025-06-01 10:30:00 |
-| 3 | Email | EMAIL | user@email.com |
-| 4 | No Telepon | PHONE_NUMBER | '081234567890 |
-| 5 | Mendaftar Untuk | REGISTERING_FOR | self / other |
-| 6 | Nama Lengkap | NAME | John Doe |
-| 7 | Tanggal lahir | BIRTH_DATE | 1990-01-01 |
-| 8 | Jenis Kelamin | GENDER | male / female |
-| 9 | Alamat | ADDRESS | Jl. Example No. 123 |
-| 10 | Nomor KTP | NATIONAL_ID | '1234567890123456 |
-| 11 | Nama BIB | BIB_NAME | JOHN |
-| 12 | Terdaftar Dari | REGISTRATION_CHANNEL | community / company / organization / personal |
-| 13 | Nama (Terdaftar Dari) | REGISTRATION_CHANNEL_NAME | Komunitas Lari Jakarta |
-| 14 | Sumber Info | INFO_SOURCE | friend / social_media / print_media |
-| 15 | Golongan Darah | BLOOD_TYPE | A+ / O+ / AB+ / etc |
-| 16 | Penyakit Kronis | CHRONIC_CONDITION | yes / no |
-| 17 | Dalam Perawatan Dokter | UNDER_DOCTOR_CARE | yes / no |
-| 18 | Harus Minum Obat | REQUIRES_MEDICATION | yes / no |
-| 19 | Kejadian Buruk Terkait Penyakit | EXPERIENCED_COMPLICATIONS | yes / no |
-| 20 | Pernah Pingsan | EXPERIENCED_FAINTING | yes / no |
-| 21 | Kontak Darurat Nama | EMERGENCY_CONTACT_NAME | Jane Doe |
-| 22 | Kontak Darurat Telepon | EMERGENCY_CONTACT_PHONE | '081234567890 |
-| 23 | Ukuran Jersey | SHIRT_SIZE | S / M / L / XL / XXL / XXXL |
-| 24 | Jumlah Payment | PAYMENT_AMOUNT | 200001 |
-| 25 | Link Bukti Bayar | PAYMENT_PROOF_URL | https://drive.google.com/... |
-| 26 | Nomor BIB | BIB_NUMBER | 0001 |
-
----
-
-## 🔧 COMPLETE APPS SCRIPT CODE
+Copy kode lengkap di bawah ini ke Google Apps Script Editor Anda:
 
 ```javascript
 // ========================================
@@ -100,9 +64,16 @@ function doPost(e) {
       return createRegistration(data.data);
     } else if (action === 'uploadPaymentProof') {
       // Upload file to Drive first
-      const driveLink = uploadPaymentProof(data.orderId, data.file, data.userName, data.nationalId);
+      const driveLink = uploadPaymentProof(
+        data.orderId, 
+        data.file, 
+        data.userName,      // ✅ NEW: Nama peserta
+        data.nationalId     // ✅ NEW: Nomor KTP
+      );
       // Then update sheet with link
       return updatePaymentProof(data.orderId, driveLink);
+    } else if (action === 'getBib') {
+      return getBibNumber(data.orderId);
     } else {
       return ContentService.createTextOutput(
         JSON.stringify({ success: false, error: 'Invalid action' })
@@ -141,6 +112,9 @@ function createRegistration(data) {
     const now = new Date();
     const timestamp = Utilities.formatDate(now, 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
 
+    // ✅ FIX 1: Tambahkan apostrophe (') di depan BIB number agar tersimpan sebagai text
+    const bibNumberWithPrefix = "'" + bibNumber;
+
     // Prepare row data (26 kolom)
     const rowData = [
       timestamp,                              // A: Created At
@@ -168,7 +142,7 @@ function createRegistration(data) {
       data.shirtSize || '',                   // W: Ukuran Jersey
       paymentAmount,                          // X: Jumlah Payment (AUTO-GENERATED)
       '',                                     // Y: Link Bukti Bayar (kosong, diisi setelah upload)
-      bibNumber,                              // Z: Nomor BIB (AUTO-GENERATED)
+      bibNumberWithPrefix,                    // Z: Nomor BIB (AUTO-GENERATED with apostrophe prefix)
     ];
 
     // Append row
@@ -198,13 +172,9 @@ function createRegistration(data) {
 
 /**
  * Generate BIB number in format: 0001, 0002, 0003, ..., 9999
- * FIXED: Now properly returns padded string
+ * Returns STRING with leading zeros
  */
 function generateBibNumber(registrationNumber) {
-  // registrationNumber = 1 → BIB = "0001"
-  // registrationNumber = 2 → BIB = "0002"
-  // registrationNumber = 150 → BIB = "0150"
-  
   const bibNum = registrationNumber;
   const bibString = String(bibNum).padStart(4, '0'); // Pad with zeros to 4 digits
   
@@ -217,10 +187,6 @@ function generateBibNumber(registrationNumber) {
  * Generate unique payment amount: 200001, 200002, 200003, ...
  */
 function generatePaymentAmount(registrationNumber) {
-  // registrationNumber = 1 → 200001
-  // registrationNumber = 2 → 200002
-  // registrationNumber = 150 → 200150
-  
   const baseAmount = 200000;
   const uniqueAmount = baseAmount + registrationNumber;
   
@@ -228,13 +194,17 @@ function generatePaymentAmount(registrationNumber) {
 }
 
 /**
- * Upload payment proof image to Google Drive
- * UPDATED: Simple folder structure (no month subfolders)
- * File naming: NamaPeserta_NomorKTP.ext
+ * ✅ FIX 2 & 3: Upload payment proof to single main folder with format NamaPeserta_NomorKTP.ext
+ * 
+ * @param {string} orderId - Order ID (not used in filename anymore)
+ * @param {object} fileData - File data object with name, mimeType, data
+ * @param {string} userName - Nama peserta lengkap
+ * @param {string} nationalId - Nomor KTP peserta
+ * @returns {string} Google Drive file URL
  */
 function uploadPaymentProof(orderId, fileData, userName, nationalId) {
   try {
-    // Get or create root folder (SINGLE FOLDER ONLY)
+    // ✅ FIX 2: SINGLE MAIN FOLDER (no month subfolders)
     const rootFolderName = 'Payment Proofs - Trail Run';
     let rootFolder;
     
@@ -245,7 +215,7 @@ function uploadPaymentProof(orderId, fileData, userName, nationalId) {
       rootFolder = DriveApp.createFolder(rootFolderName);
     }
 
-    // Decode base64 and create file
+    // Decode base64 and create blob
     const blob = Utilities.newBlob(
       Utilities.base64Decode(fileData.data),
       fileData.mimeType,
@@ -257,6 +227,7 @@ function uploadPaymentProof(orderId, fileData, userName, nationalId) {
     const lastDot = originalName.lastIndexOf('.');
     const extension = lastDot > 0 ? originalName.substring(lastDot) : '.jpg';
 
+    // ✅ FIX 3: Format nama file: NamaPeserta_NomorKTP.ext
     // Clean userName and nationalId for filename (remove special characters)
     const cleanUserName = (userName || 'Unknown').replace(/[^a-zA-Z0-9]/g, '_');
     const cleanNationalId = (nationalId || '0000000000000000').replace(/[^0-9]/g, '');
@@ -264,7 +235,7 @@ function uploadPaymentProof(orderId, fileData, userName, nationalId) {
     // Create filename: NamaPeserta_NomorKTP.ext
     const fileName = cleanUserName + '_' + cleanNationalId + extension;
 
-    // Upload to root folder (NO SUBFOLDERS)
+    // Upload to main folder (NO SUBFOLDERS)
     const file = rootFolder.createFile(blob.setName(fileName));
 
     // Make file shareable
@@ -282,9 +253,7 @@ function uploadPaymentProof(orderId, fileData, userName, nationalId) {
 }
 
 /**
- * Update payment proof URL in sheet
- * Find row by matching orderId in Email column (we'll use email as identifier)
- * Or you can add separate ORDER_ID column
+ * Update payment proof URL in sheet by orderId (using email column as identifier)
  */
 function updatePaymentProof(orderId, driveLink) {
   try {
@@ -295,8 +264,8 @@ function updatePaymentProof(orderId, driveLink) {
       throw new Error('Sheet "' + SHEET_NAME + '" not found');
     }
 
-    // Find last row (most recent registration)
-    // Since we don't have ORDER_ID column, we'll update the last row
+    // Find row by email (since we don't have ORDER_ID column)
+    // We'll update the last row as a simple approach
     const lastRow = sheet.getLastRow();
 
     // Update payment proof URL
@@ -314,6 +283,55 @@ function updatePaymentProof(orderId, driveLink) {
 
   } catch (error) {
     Logger.log('Error updating payment proof: ' + error.toString());
+    return ContentService.createTextOutput(
+      JSON.stringify({ success: false, error: error.toString() })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Get BIB number by orderId (email)
+ */
+function getBibNumber(orderId) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_NAME);
+
+    if (!sheet) {
+      throw new Error('Sheet "' + SHEET_NAME + '" not found');
+    }
+
+    // Find row by email
+    const dataRange = sheet.getDataRange();
+    const values = dataRange.getValues();
+    
+    for (let i = 1; i < values.length; i++) {
+      if (values[i][COLUMNS.EMAIL - 1] === orderId) {
+        const bibNumber = values[i][COLUMNS.BIB_NUMBER - 1];
+        
+        // Remove apostrophe prefix if exists
+        const cleanBibNumber = typeof bibNumber === 'string' && bibNumber.startsWith("'") 
+          ? bibNumber.substring(1) 
+          : String(bibNumber);
+        
+        return ContentService.createTextOutput(
+          JSON.stringify({ 
+            success: true, 
+            bibNumber: cleanBibNumber 
+          })
+        ).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    return ContentService.createTextOutput(
+      JSON.stringify({ 
+        success: false, 
+        error: 'Order ID not found' 
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    Logger.log('Error getting BIB number: ' + error.toString());
     return ContentService.createTextOutput(
       JSON.stringify({ success: false, error: error.toString() })
     ).setMimeType(ContentService.MimeType.JSON);
@@ -341,133 +359,151 @@ function testGeneration() {
   Logger.log('BIB: ' + bib);
   Logger.log('Payment: ' + payment);
 }
+
+/**
+ * Test file naming format
+ */
+function testFileNaming() {
+  const userName = "John Doe";
+  const nationalId = "1234567890123456";
+  const extension = ".jpg";
+  
+  const cleanUserName = userName.replace(/[^a-zA-Z0-9]/g, '_');
+  const cleanNationalId = nationalId.replace(/[^0-9]/g, '');
+  
+  const fileName = cleanUserName + '_' + cleanNationalId + extension;
+  
+  Logger.log('Generated filename: ' + fileName);
+  // Expected: John_Doe_1234567890123456.jpg
+}
 ```
 
 ---
 
-## 🚀 DEPLOYMENT STEPS
+## 🚀 LANGKAH DEPLOYMENT
 
-### 1. Backup Current Script
+### 1. Backup Apps Script Lama
 ```
-1. Open: Google Sheets → Extensions → Apps Script
-2. Copy all existing code
-3. Save to text file as backup
+1. Buka Google Sheets → Extensions → Apps Script
+2. Copy semua kode yang ada
+3. Save di text file sebagai backup
 ```
 
-### 2. Replace with New Code
+### 2. Replace dengan Kode Baru
 ```
-1. Delete all existing code
-2. Copy COMPLETE code from above
-3. Paste into Apps Script editor
-4. Update SHEET_NAME if needed (line 6)
+1. Delete semua kode yang ada di Apps Script Editor
+2. Copy kode lengkap dari atas
+3. Paste ke Apps Script Editor
+4. Update SHEET_NAME jika perlu (baris 6)
 5. Save (Ctrl+S / Cmd+S)
 ```
 
-### 3. Test
+### 3. Test Function
 ```
-1. Run: testGeneration()
-2. Check logs
-3. Should show: BIB and Payment numbers
-```
-
-### 4. Deploy
-```
-1. Click: Deploy → New deployment
-2. Type: Web app
-3. Description: "Auto BIB Generation v2"
-4. Execute as: Me
-5. Who has access: Anyone
-6. Click: Deploy
-7. Copy: Web app URL
-8. Authorize permissions if prompted
+1. Pilih function: testGeneration
+2. Click Run (▶)
+3. Check logs - harus tampil BIB dengan format 0001, 0002, dst
+4. Pilih function: testFileNaming
+5. Click Run
+6. Check logs - harus tampil format: NamaPeserta_NomorKTP.jpg
 ```
 
-### 5. Update Environment Variable
+### 4. Deploy Ulang
 ```
-File: .env.local
-Update: GOOGLE_SHEETS_SCRIPT_URL=YOUR_NEW_WEB_APP_URL
-```
-
----
-
-## 🧪 TESTING GUIDE
-
-### Test 1: Registration
-```
-1. Submit form dari frontend
-2. Check console: Should show BIB and Payment
-3. Check Sheets:
-   - Nomor BIB column: 0001 (or next number)
-   - Jumlah Payment column: 200001 (or next number)
+1. Click: Deploy → Manage deployments
+2. Click Edit icon (✏️) pada deployment yang aktif
+3. Version: New version
+4. Description: "Fix BIB format, folder structure, and filename"
+5. Click: Deploy
+6. URL tetap sama, tidak perlu update .env.local
 ```
 
-### Test 2: Sequential Numbers
+### 5. Test dari Frontend
 ```
-Register 3 users:
-- User 1: BIB 0001, Payment 200001
-- User 2: BIB 0002, Payment 200002
-- User 3: BIB 0003, Payment 200003
-
-All should be sequential without gaps
-```
-
-### Test 3: Payment Proof Upload
-```
-1. Upload image file
-2. Check console: Drive link logged
-3. Check Drive: Folder "Payment Proofs - Trail Run" created
-4. Check Sheets: Link Bukti Bayar column filled
+1. Submit registrasi baru
+2. Check Google Sheets - BIB harus format 0005 (bukan 5)
+3. Upload bukti pembayaran
+4. Check Google Drive:
+   - Folder: "Payment Proofs - Trail Run" (tanpa subfolder)
+   - Nama file: "NamaPeserta_NomorKTP.jpg"
 ```
 
 ---
 
-## ⚠️ IMPORTANT NOTES
+## ✅ RINGKASAN PERUBAHAN
 
-1. **BIB Number** di-generate immediately saat registrasi
-2. **Payment Amount** juga di-generate bersamaan
-3. **Sequential numbering** based on row number
-4. **No ORDER_ID column** in current structure (using email as identifier)
-5. **Payment proof** updates last row (most recent registration)
-
----
-
-## 📋 EXPECTED BEHAVIOR
-
-```
-Registrasi 1:
-- Row 2 in Sheets
-- BIB: 0001
-- Payment: 200.001
-
-Registrasi 2:
-- Row 3 in Sheets
-- BIB: 0002
-- Payment: 200.002
-
-Registrasi 150:
-- Row 151 in Sheets
-- BIB: 0150
-- Payment: 200.150
+### 1. Format BIB Number (Baris 83)
+**Sebelum:**
+```javascript
+bibNumber,  // Z: Nomor BIB
 ```
 
----
+**Sesudah:**
+```javascript
+const bibNumberWithPrefix = "'" + bibNumber;
+...
+bibNumberWithPrefix,  // Z: Nomor BIB (dengan apostrophe prefix)
+```
 
-## 🔍 TROUBLESHOOTING
-
-**Issue: BIB or Payment tidak generated**
-- Check: SHEET_NAME correct?
-- Check: Apps Script deployed?
-- Check: Logs for errors
-
-**Issue: Numbers tidak sequential**
-- Cause: Rows deleted manually
-- Fix: Don't delete rows, hide them instead
-
-**Issue: Payment proof tidak terupload**
-- Check: Drive permissions
-- Check: File size < 5MB
-- Check: Apps Script execution log
+**Hasil:** BIB tersimpan sebagai `'0005` di sheet, tampil sebagai `0005` (bukan `5`)
 
 ---
 
-**Ready to deploy!** 🚀
+### 2. Struktur Folder (Baris 128-140)
+**Sebelum:**
+```javascript
+// Create month folder (YYYY-MM)
+const monthFolderName = Utilities.formatDate(now, 'Asia/Jakarta', 'yyyy-MM');
+let monthFolder = rootFolder.getFoldersByName(monthFolderName)...
+```
+
+**Sesudah:**
+```javascript
+// ✅ SINGLE MAIN FOLDER (no subfolders)
+const rootFolderName = 'Payment Proofs - Trail Run';
+let rootFolder = DriveApp.getFoldersByName(rootFolderName)...
+// Upload langsung ke rootFolder (NO SUBFOLDERS)
+```
+
+**Hasil:** Semua file di 1 folder utama: `Payment Proofs - Trail Run`
+
+---
+
+### 3. Format Nama File (Baris 150-159)
+**Sebelum:**
+```javascript
+const fileName = orderId + '_' + fileData.name;
+```
+
+**Sesudah:**
+```javascript
+const cleanUserName = (userName || 'Unknown').replace(/[^a-zA-Z0-9]/g, '_');
+const cleanNationalId = (nationalId || '0000000000000000').replace(/[^0-9]/g, '');
+const fileName = cleanUserName + '_' + cleanNationalId + extension;
+```
+
+**Hasil:** File bernama `JohnDoe_1234567890123456.jpg`
+
+---
+
+## 🧪 TESTING CHECKLIST
+
+- [ ] BIB number tampil sebagai `0005` (bukan `5`) di Google Sheets
+- [ ] Payment proof tersimpan di folder `Payment Proofs - Trail Run` (tanpa subfolder)
+- [ ] Nama file format: `NamaPeserta_NomorKTP.ext`
+- [ ] Registration baru masih berjalan normal
+- [ ] Upload bukti pembayaran berhasil
+- [ ] Link Google Drive muncul di sheet
+
+---
+
+## ⚠️ CATATAN PENTING
+
+1. **URL Apps Script tidak berubah** setelah update → tidak perlu ganti `.env.local`
+2. **Data lama tetap aman** → hanya registrasi baru yang menggunakan format baru
+3. **Jika perlu migrate data lama**, bisa run script manual di Apps Script untuk update format BIB
+4. **Next.js API juga perlu update** untuk mengirim `userName` dan `nationalId` saat upload
+
+---
+
+Lanjut ke update **Next.js API** untuk mengirim `userName` dan `nationalId`! 🚀

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
 import {
   Award,
@@ -149,6 +150,9 @@ const stepVisuals: StepVisual[] = [
   { key: "payment", label: "Pembayaran", icon: CreditCard },
 ];
 
+// LocalStorage keys
+const STORAGE_KEY = 'funrun_registration_data';
+
 export default function MalangFunRunPage() {
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -186,6 +190,67 @@ export default function MalangFunRunPage() {
   const [bibNumber, setBibNumber] = useState<string>(""); // BIB number: 0001, 0002, dst
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
   const [isUploadingProof, setIsUploadingProof] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true); // ✅ Loading state untuk localStorage
+  const [isEditMode, setIsEditMode] = useState(false); // ✅ Track apakah ini edit mode atau create mode
+
+  // ✅ Load dari localStorage saat component mount
+  useEffect(() => {
+    console.log('🔍 Checking localStorage...');
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        console.log('📦 Found data in localStorage:', parsed);
+        
+        if (parsed.formData && parsed.orderId && parsed.paymentAmount && parsed.bibNumber) {
+          console.log('✅ Valid data found, loading...');
+          setFormData(parsed.formData);
+          setOrderId(parsed.orderId);
+          setPaymentAmount(parsed.paymentAmount);
+          // ✅ Ensure bibNumber is string with leading zeros (format: 0001, 0002, etc)
+          setBibNumber(String(parsed.bibNumber).padStart(4, '0'));
+          setIsEditMode(parsed.isEditMode || false); // ✅ Load isEditMode dari localStorage
+          setIsPaymentPage(true); // Langsung ke halaman pembayaran
+          console.log('✅ Data loaded successfully, redirecting to payment page');
+        } else {
+          console.log('⚠️ Data incomplete, clearing localStorage');
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      } catch (error) {
+        console.error('❌ Error parsing localStorage:', error);
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } else {
+      console.log('ℹ️ No saved data in localStorage');
+    }
+    
+    setIsInitializing(false);
+  }, []);
+
+  // ✅ Auto-save ke localStorage saat payment page state berubah
+  useEffect(() => {
+    if (isPaymentPage && orderId && paymentAmount && bibNumber) {
+      // ✅ CRITICAL: Ensure bibNumber is string with leading zeros before saving
+      const formattedBibNumber = String(bibNumber).padStart(4, '0');
+      
+      const dataToSave = {
+        formData,
+        orderId,
+        paymentAmount,
+        bibNumber: formattedBibNumber, // ✅ Save with guaranteed format
+        isEditMode, // ✅ Save isEditMode ke localStorage
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+      console.log('💾 Data auto-saved to localStorage, BIB:', formattedBibNumber);
+    }
+  }, [isPaymentPage, orderId, paymentAmount, bibNumber, formData, isEditMode]);
+
+  // ✅ Clear localStorage
+  const clearLocalStorage = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    console.log('Data cleared from localStorage');
+  };
 
   const validators: Record<keyof FormData, () => string | undefined> = {
     email: () => {
@@ -334,33 +399,69 @@ export default function MalangFunRunPage() {
     setIsLoading(true);
 
     try {
-      // Create registration with PENDING status
-      const response = await fetch('/api/registration/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ formData }),
-      });
+      // ✅ Cek mode: CREATE atau UPDATE
+      if (isEditMode) {
+        // UPDATE existing registration
+        console.log('🔄 Update mode: updating existing registration');
+        const response = await fetch('/api/registration/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            formData,
+            orderId,
+            paymentAmount, // Tetap sama
+            bibNumber, // Tetap sama
+          }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Gagal membuat pendaftaran');
-      }
+        if (!response.ok) {
+          throw new Error(data.error || 'Gagal mengupdate pendaftaran');
+        }
 
-      // Save orderId, unique payment amount, and BIB number
-      if (data.orderId && data.paymentAmount && data.bibNumber) {
-        console.log('Registration created:', data.orderId);
-        console.log('Payment amount:', data.paymentAmount);
-        console.log('BIB number:', data.bibNumber);
-        setOrderId(data.orderId);
-        setPaymentAmount(data.paymentAmount);
-        setBibNumber(data.bibNumber);
+        console.log('✅ Registration updated successfully');
+        // ✅ IMPORTANT: Re-ensure bibNumber format after update
+        setBibNumber(String(bibNumber).padStart(4, '0'));
         setIsLoading(false);
-        setIsPaymentPage(true); // Show payment instruction page
+        setIsPaymentPage(true); // Kembali ke payment page
+        // Data orderId, paymentAmount, bibNumber tetap sama
+        
       } else {
-        throw new Error('Data tidak lengkap dari server');
+        // CREATE new registration
+        console.log('➕ Create mode: creating new registration');
+        const response = await fetch('/api/registration/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ formData }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Gagal membuat pendaftaran');
+        }
+
+        // Save orderId, unique payment amount, and BIB number
+        if (data.orderId && data.paymentAmount && data.bibNumber) {
+          console.log('✅ Registration created:', data.orderId);
+          console.log('Payment amount:', data.paymentAmount);
+          console.log('BIB number:', data.bibNumber);
+          setOrderId(data.orderId);
+          setPaymentAmount(data.paymentAmount);
+          // ✅ Ensure bibNumber is string with leading zeros (format: 0001, 0002, etc)
+          setBibNumber(String(data.bibNumber).padStart(4, '0'));
+          setIsEditMode(true); // ✅ Set ke edit mode setelah create pertama kali
+          setIsLoading(false);
+          setIsPaymentPage(true); // Show payment instruction page
+          // ✅ Data akan otomatis tersimpan oleh useEffect
+        } else {
+          throw new Error('Data tidak lengkap dari server');
+        }
       }
     } catch (error) {
       console.error('Submit error:', error);
@@ -370,6 +471,9 @@ export default function MalangFunRunPage() {
   };
 
   const resetForm = () => {
+    // ✅ Clear localStorage first
+    clearLocalStorage();
+    
     setFormData({
       email: "",
       phoneNumber: "",
@@ -398,7 +502,24 @@ export default function MalangFunRunPage() {
     });
     setErrors({});
     setIsSubmitted(false);
+    setIsPaymentPage(false);
     setCurrentStep(0);
+    setOrderId("");
+    setPaymentAmount(0);
+    setBibNumber("");
+    setPaymentProofFile(null);
+    setIsEditMode(false); // ✅ Reset edit mode
+  };
+
+  // ✅ Handle back to edit data
+  const handleBackToEdit = () => {
+    console.log('📝 Edit mode activated, current BIB:', bibNumber);
+    // ✅ Re-ensure bibNumber format before going back to edit
+    setBibNumber(String(bibNumber).padStart(4, '0'));
+    setIsPaymentPage(false);
+    setCurrentStep(0); // Kembali ke step pertama
+    // isEditMode tetap true, tidak berubah
+    console.log('📝 Will UPDATE on next submit, BIB ensured:', String(bibNumber).padStart(4, '0'));
   };
 
   // Handle payment proof upload
@@ -412,13 +533,15 @@ export default function MalangFunRunPage() {
 
     try {
       // Upload to Google Drive
-      const formData = new FormData();
-      formData.append('file', paymentProofFile);
-      formData.append('orderId', orderId);
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', paymentProofFile);
+      uploadFormData.append('orderId', orderId);
+      uploadFormData.append('userName', formData.name); // ✅ Tambah nama peserta
+      uploadFormData.append('nationalId', formData.nationalId); // ✅ Tambah nomor KTP
 
       const response = await fetch('/api/upload/payment-proof', {
         method: 'POST',
-        body: formData,
+        body: uploadFormData,
       });
 
       const data = await response.json();
@@ -428,6 +551,9 @@ export default function MalangFunRunPage() {
       }
 
       console.log('Payment proof uploaded:', data.driveLink);
+      
+      // ✅ Clear localStorage after successful upload
+      clearLocalStorage();
       
       // Show success page
       setIsUploadingProof(false);
@@ -439,6 +565,18 @@ export default function MalangFunRunPage() {
       setIsUploadingProof(false);
     }
   };
+
+  // ✅ Loading screen saat initialize (check localStorage)
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-100 via-green-50 to-lime-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-semibold">Memuat data pendaftaran...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Payment instruction page
   if (isPaymentPage) {
@@ -471,7 +609,7 @@ export default function MalangFunRunPage() {
               Rp {paymentAmount.toLocaleString('id-ID')}
             </p>
             <p className="text-xs text-gray-500 mt-2">
-              *Nominal unik untuk memudahkan verifikasi
+              *Pastikan nominal yang anda transfer sesuai dengan nominal di atas
             </p>
           </div>
 
@@ -545,8 +683,17 @@ export default function MalangFunRunPage() {
             )}
           </button>
 
+          {/* ✅ Tombol Ubah Data Diri */}
+          <button
+            onClick={handleBackToEdit}
+            disabled={isUploadingProof}
+            className="w-full bg-white border-2 border-gray-300 text-gray-700 py-3 rounded-full font-semibold hover:border-green-500 hover:bg-green-50 hover:text-green-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Ubah Data Diri
+          </button>
+
           <p className="text-xs text-gray-500 text-center">
-            Bukti pembayaran akan diverifikasi oleh panitia. Anda akan dihubungi via email/WhatsApp untuk konfirmasi.
+            Bukti pembayaran akan diverifikasi oleh panitia. Anda akan dihubungi via WhatsApp untuk konfirmasi.
           </p>
         </div>
       </div>
@@ -1036,8 +1183,15 @@ export default function MalangFunRunPage() {
                     Jersey dalam ukuran standar. Silakan dipilih sesuai tabel ukuran yang tertera.
                     Mohon diperhatikan bahwa penukaran ukuran tidak tersedia setelah pemilihan ini.
                   </div>
-                  <div className="bg-white border border-dashed border-gray-300 rounded-xl p-6 text-center uppercase text-gray-400 tracking-wide">
-                    GAMBAR BAJU DAN PANDUAN UKURAN
+                  <div className="relative w-full h-64 md:h-72">
+                    <Image
+                      src="/size.jpg"
+                      alt="Panduan ukuran jersey Fun Run"
+                      fill
+                      sizes="(min-width: 768px) 50vw, 100vw"
+                      className="object-contain"
+                      priority
+                    />
                   </div>
                 </div>
                 <div>
@@ -1073,16 +1227,19 @@ export default function MalangFunRunPage() {
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 text-left space-y-2">
                   <h4 className="font-semibold text-gray-800">Ringkasan Pendaftaran</h4>
                   <p>
-                    <span className="font-medium">Nama:</span> {formData.name || "-"}
+                    <span className="font-medium">Nama Lengkap:</span> {formData.name || "-"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Nomor Telepon:</span> {formData.phoneNumber || "-"}
                   </p>
                   <p>
                     <span className="font-medium">Email:</span> {formData.email || "-"}
                   </p>
                   <p>
-                    <span className="font-medium">Ukuran Jersey:</span> {formData.shirtSize || "-"}
+                    <span className="font-medium">Nama BIB:</span> {formData.bibName || "-"}
                   </p>
                   <p>
-                    <span className="font-medium">Biaya Pendaftaran:</span> Rp 200.000
+                    <span className="font-medium">Ukuran Jersey:</span> {formData.shirtSize || "-"}
                   </p>
                 </div>
 

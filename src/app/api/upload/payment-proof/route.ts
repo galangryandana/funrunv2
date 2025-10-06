@@ -5,6 +5,8 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const orderId = formData.get('orderId') as string;
+    const userName = formData.get('userName') as string; // ✅ Tambah userName
+    const nationalId = formData.get('nationalId') as string; // ✅ Tambah nationalId
 
     if (!file || !orderId) {
       return NextResponse.json(
@@ -44,6 +46,8 @@ export async function POST(request: Request) {
     const uploadData = {
       action: 'uploadPaymentProof',
       orderId: orderId,
+      userName: userName, // ✅ Kirim userName ke Apps Script
+      nationalId: nationalId, // ✅ Kirim nationalId ke Apps Script
       file: {
         name: file.name,
         mimeType: file.type,

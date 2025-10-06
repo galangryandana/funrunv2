@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Transform data English to Indonesian for Google Sheets
@@ -36,37 +36,35 @@ function transformToIndonesian(data: any) {
   };
 }
 
-export async function POST(request: Request) {
+/**
+ * UPDATE existing registration
+ * Called when user clicks "Ubah Data Diri" and re-submit
+ */
+export async function POST(request: NextRequest) {
   try {
-    const { formData } = await request.json();
+    const { formData, orderId, paymentAmount, bibNumber } = await request.json();
 
-    // Validate required fields
-    if (!formData.email || !formData.name || !formData.nationalId) {
+    if (!formData || !orderId) {
       return NextResponse.json(
-        { error: 'Data tidak lengkap' },
+        { error: 'Form data dan Order ID diperlukan' },
         { status: 400 }
       );
     }
 
-    // ✅ Use NATIONAL_ID (KTP) as orderId (unique identifier)
-    const orderId = formData.nationalId;
+    const appsScriptUrl = process.env.GOOGLE_SHEETS_SCRIPT_URL;
 
-    // Get Google Sheets Script URL from environment
-    const scriptUrl = process.env.GOOGLE_SHEETS_SCRIPT_URL;
-    if (!scriptUrl) {
-      throw new Error('Google Sheets Script URL not configured');
+    if (!appsScriptUrl) {
+      throw new Error('GOOGLE_SHEETS_SCRIPT_URL not configured');
     }
 
     // ✅ Transform data to Indonesian before sending to Google Sheets
     const transformedData = transformToIndonesian(formData);
 
-    // Prepare data for Google Sheets
-    const registrationData = {
-      action: 'create',
+    // Prepare data untuk Apps Script
+    const payload = {
+      action: 'update', // ✅ Action UPDATE
+      orderId: orderId, // ✅ orderId = nationalId (Nomor KTP)
       data: {
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        orderId: orderId,
         email: transformedData.email,
         phoneNumber: transformedData.phoneNumber,
         registeringFor: transformedData.registeringFor,
@@ -77,7 +75,7 @@ export async function POST(request: Request) {
         nationalId: transformedData.nationalId,
         bibName: transformedData.bibName,
         registrationChannel: transformedData.registrationChannel,
-        registrationChannelName: transformedData.registrationChannelName || '',
+        registrationChannelName: transformedData.registrationChannelName,
         infoSource: transformedData.infoSource,
         bloodType: transformedData.bloodType,
         chronicCondition: transformedData.chronicCondition,
@@ -88,40 +86,44 @@ export async function POST(request: Request) {
         emergencyContactName: transformedData.emergencyContactName,
         emergencyContactPhone: transformedData.emergencyContactPhone,
         shirtSize: transformedData.shirtSize,
+        // Payment amount dan BIB number TIDAK berubah
+        paymentAmount: paymentAmount,
+        bibNumber: bibNumber,
       },
     };
 
-    // Send to Google Sheets
-    const response = await fetch(scriptUrl, {
+    console.log('🔄 Updating registration:', orderId);
+
+    const response = await fetch(appsScriptUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(registrationData),
+      body: JSON.stringify(payload),
     });
 
     const result = await response.json();
 
     if (!result.success) {
-      throw new Error(result.error || 'Failed to create registration');
+      throw new Error(result.error || 'Failed to update registration');
     }
 
-    // Get payment amount and BIB number from Apps Script response
-    const paymentAmount = result.paymentAmount || 200001;
-    const bibNumber = result.bibNumber || '0001';
+    console.log('✅ Registration updated successfully');
 
     return NextResponse.json({
       success: true,
+      message: 'Registration updated successfully',
       orderId: orderId,
       paymentAmount: paymentAmount,
       bibNumber: bibNumber,
-      message: 'Pendaftaran berhasil dibuat',
     });
+
   } catch (error) {
-    console.error('Registration create error:', error);
+    console.error('Update registration error:', error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Terjadi kesalahan',
+        error: error instanceof Error ? error.message : 'Failed to update registration',
+        success: false,
       },
       { status: 500 }
     );
