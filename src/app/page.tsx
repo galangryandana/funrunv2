@@ -591,17 +591,6 @@ export default function MalangFunRunPage() {
             <p className="text-gray-600">Silakan transfer sesuai nominal yang tertera</p>
           </div>
 
-          {/* BIB Number Display */}
-          <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-6 text-center text-white">
-            <p className="text-sm opacity-90 mb-2">Nomor BIB Anda</p>
-            <p className="text-5xl md:text-6xl font-bold">
-              {bibNumber}
-            </p>
-            <p className="text-xs opacity-75 mt-2">
-              Simpan nomor ini untuk pengambilan race pack
-            </p>
-          </div>
-
           {/* Payment Amount */}
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 text-center border-2 border-green-200">
             <p className="text-sm text-gray-600 mb-2">Nominal Transfer</p>
