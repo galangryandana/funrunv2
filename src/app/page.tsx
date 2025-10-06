@@ -22,7 +22,6 @@ type ShirtSize = "" | "S" | "M" | "L" | "XL" | "XXL" | "XXXL";
 type RegistrationChannel = "" | "community" | "company" | "organization" | "personal";
 type InfoSource = "" | "friend" | "social_media" | "print_media";
 type YesNoValue = "" | "yes" | "no";
-type ParticipantCategory = "" | "student" | "general";
 
 type FormData = {
   email: string;
@@ -46,7 +45,6 @@ type FormData = {
   emergencyContactName: string;
   emergencyContactPhone: string;
   shirtSize: ShirtSize;
-  participantCategory: ParticipantCategory;
   agreedToTerm1: boolean;
   agreedToTerm2: boolean;
   agreedToTerm3: boolean;
@@ -73,7 +71,6 @@ const registrationChannelNamePlaceholders = {
   company: "Masukkan nama perusahaan",
   organization: "Masukkan nama organisasi",
 } as const;
-const participantCategoryLabels = { student: "Pelajar", general: "Umum" } as const;
 const registeringForLabels = { self: "Dirimu sendiri", other: "Orang lain" } as const;
 
 type StepKey = "email" | "info" | "questionnaire" | "racePack" | "payment";
@@ -130,9 +127,9 @@ const stepConfigs: StepConfig[] = [
   },
   {
     key: "payment",
-    title: "Pembayaran",
-    description: "Tentukan kategori pendaftar dan cek ringkasan data Anda.",
-    fields: ["participantCategory", "agreedToTerm1", "agreedToTerm2", "agreedToTerm3"],
+    title: "Syarat & Ketentuan",
+    description: "Baca dan setujui syarat & ketentuan pendaftaran.",
+    fields: ["agreedToTerm1", "agreedToTerm2", "agreedToTerm3"],
   },
 ];
 
@@ -175,7 +172,6 @@ export default function MalangFunRunPage() {
     emergencyContactName: "",
     emergencyContactPhone: "",
     shirtSize: "",
-    participantCategory: "",
     agreedToTerm1: false,
     agreedToTerm2: false,
     agreedToTerm3: false,
@@ -183,76 +179,12 @@ export default function MalangFunRunPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isFetchingBibPage, setIsFetchingBibPage] = useState(false); // NEW: Loading page state
+  const [isPaymentPage, setIsPaymentPage] = useState(false); // Payment instruction page
   const [currentStep, setCurrentStep] = useState(0);
   const [orderId, setOrderId] = useState<string>("");
-  const [bibNumber, setBibNumber] = useState<string | null>(null);
-  const [fetchError, setFetchError] = useState(false);
-
-  // Fetch BIB number di loading page
-  useEffect(() => {
-    const fetchBibNumber = async () => {
-      if (isFetchingBibPage && orderId && !bibNumber) {
-        console.log('=== Starting BIB fetch ===');
-        console.log('Order ID:', orderId);
-        try {
-          // Optimized polling: cepat di awal, lebih lambat kemudian
-          let attempts = 0;
-          const maxAttempts = 20;
-          
-          // Delays dengan exponential backoff
-          const getDelay = (attempt: number) => {
-            if (attempt < 5) return 1000;      // 1 detik untuk 5 attempt pertama
-            if (attempt < 10) return 2000;     // 2 detik untuk attempt 6-10
-            return 3000;                        // 3 detik untuk sisa
-          };
-
-          while (attempts < maxAttempts && isFetchingBibPage) {
-            console.log(`Fetching BIB attempt ${attempts + 1}/${maxAttempts}...`);
-            
-            try {
-              const response = await fetch('/api/registration/get-bib', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ orderId }),
-              });
-
-              const data = await response.json();
-              console.log(`Attempt ${attempts + 1} response:`, data);
-
-              if (data.success && data.bibNumber) {
-                console.log('BIB number fetched successfully:', data.bibNumber);
-                setBibNumber(data.bibNumber);
-                setIsFetchingBibPage(false); // Hide loading page
-                setIsSubmitted(true); // Show success page
-                return;
-              }
-            } catch (error) {
-              console.error('Fetch attempt failed:', error);
-            }
-
-            // Retry dengan delay
-            attempts++;
-            if (attempts < maxAttempts) {
-              const delay = getDelay(attempts);
-              await new Promise(resolve => setTimeout(resolve, delay));
-            }
-          }
-
-          // Timeout: max attempts reached
-          console.warn('Max attempts reached, showing error');
-          setFetchError(true);
-        } catch (error) {
-          console.error('Error fetching BIB number:', error);
-          setFetchError(true);
-        }
-      }
-    };
-
-    fetchBibNumber();
-  }, [isFetchingBibPage, orderId, bibNumber]);
+  const [paymentAmount, setPaymentAmount] = useState<number>(0); // Unique amount: 200.001, 200.002, dst
+  const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [isUploadingProof, setIsUploadingProof] = useState(false);
 
   const validators: Record<keyof FormData, () => string | undefined> = {
     email: () => {
@@ -308,8 +240,6 @@ export default function MalangFunRunPage() {
       return undefined;
     },
     shirtSize: () => (!formData.shirtSize ? "Pilih ukuran jersey" : undefined),
-    participantCategory: () =>
-      !formData.participantCategory ? "Pilih kategori pendaftar" : undefined,
     agreedToTerm1: () => (!formData.agreedToTerm1 ? "Anda harus menyetujui ketentuan ini" : undefined),
     agreedToTerm2: () => (!formData.agreedToTerm2 ? "Anda harus menyetujui ketentuan ini" : undefined),
     agreedToTerm3: () => (!formData.agreedToTerm3 ? "Anda harus menyetujui ketentuan ini" : undefined),
@@ -403,7 +333,8 @@ export default function MalangFunRunPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/payment/create-transaction', {
+      // Create registration with PENDING status
+      const response = await fetch('/api/registration/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -414,44 +345,19 @@ export default function MalangFunRunPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Gagal membuat transaksi');
+        throw new Error(data.error || 'Gagal membuat pendaftaran');
       }
 
-      // Save orderId untuk fetch BIB number nanti
-      if (data.orderId) {
-        console.log('Order ID saved:', data.orderId);
+      // Save orderId and unique payment amount
+      if (data.orderId && data.paymentAmount) {
+        console.log('Registration created:', data.orderId);
+        console.log('Payment amount:', data.paymentAmount);
         setOrderId(data.orderId);
+        setPaymentAmount(data.paymentAmount);
+        setIsLoading(false);
+        setIsPaymentPage(true); // Show payment instruction page
       } else {
-        console.error('WARNING: No orderId in response!', data);
-      }
-
-      setIsLoading(false);
-
-      if (window.snap) {
-        window.snap.pay(data.token, {
-          onSuccess: function (result) {
-            console.log('Payment success:', result);
-            console.log('Current orderId state:', orderId);
-            setIsFetchingBibPage(true); // Show loading page, fetch BIB
-          },
-          onPending: function (result) {
-            console.log('Payment pending:', result);
-            alert('Pembayaran Anda sedang diproses. Silakan cek email untuk konfirmasi.');
-
-          },
-          onError: function (result) {
-            console.error('Payment error:', result);
-            alert('Pembayaran gagal. Silakan coba lagi.');
-
-          },
-          onClose: function () {
-            console.log('Payment popup closed');
-
-            alert('Anda menutup popup pembayaran sebelum menyelesaikan pembayaran.');
-          },
-        });
-      } else {
-        throw new Error('Snap.js belum ter-load. Silakan refresh halaman.');
+        throw new Error('Data tidak lengkap dari server');
       }
     } catch (error) {
       console.error('Submit error:', error);
@@ -483,7 +389,6 @@ export default function MalangFunRunPage() {
       emergencyContactName: "",
       emergencyContactPhone: "",
       shirtSize: "",
-      participantCategory: "",
       agreedToTerm1: false,
       agreedToTerm2: false,
       agreedToTerm3: false,
@@ -493,68 +398,142 @@ export default function MalangFunRunPage() {
     setCurrentStep(0);
   };
 
-  // Loading page: Fetching BIB number
-  if (isFetchingBibPage) {
+  // Handle payment proof upload
+  const handlePaymentProofUpload = async () => {
+    if (!paymentProofFile) {
+      alert('Silakan upload bukti pembayaran terlebih dahulu');
+      return;
+    }
+
+    setIsUploadingProof(true);
+
+    try {
+      // Upload to Google Drive
+      const formData = new FormData();
+      formData.append('file', paymentProofFile);
+      formData.append('orderId', orderId);
+
+      const response = await fetch('/api/upload/payment-proof', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal mengupload bukti pembayaran');
+      }
+
+      console.log('Payment proof uploaded:', data.driveLink);
+      
+      // Show success page
+      setIsUploadingProof(false);
+      setIsPaymentPage(false);
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert(error instanceof Error ? error.message : 'Terjadi kesalahan saat mengupload');
+      setIsUploadingProof(false);
+    }
+  };
+
+  // Payment instruction page
+  if (isPaymentPage) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-700 via-emerald-800 to-teal-900 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-2xl w-full text-center space-y-8">
-          {!fetchError ? (
-            <>
-              {/* Loading Animation */}
-              <div className="flex justify-center">
-                <div className="relative">
-                  <div className="animate-spin rounded-full h-24 w-24 border-b-4 border-green-600"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <CheckCircle className="w-12 h-12 text-green-600" />
-                  </div>
-                </div>
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-100 via-green-50 to-lime-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-2xl w-full space-y-6">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
+              <CreditCard className="w-12 h-12 text-green-600" />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Instruksi Pembayaran</h2>
+            <p className="text-gray-600">Silakan transfer sesuai nominal yang tertera</p>
+          </div>
 
-              {/* Loading Text */}
-              <div className="space-y-3">
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
-                  Pembayaran Berhasil!
-                </h2>
-                <p className="text-lg text-gray-600">
-                  Mohon tunggu sebentar...
-                </p>
-                <p className="text-base text-gray-500">
-                  Kami sedang mengambil nomor BIB Anda dari sistem
-                </p>
-              </div>
+          {/* Payment Amount */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 text-center border-2 border-green-200">
+            <p className="text-sm text-gray-600 mb-2">Nominal Transfer</p>
+            <p className="text-4xl md:text-5xl font-bold text-green-600">
+              Rp {paymentAmount.toLocaleString('id-ID')}
+            </p>
+            <p className="text-xs text-gray-500 mt-2">
+              *Nominal unik untuk memudahkan verifikasi
+            </p>
+          </div>
 
-              {/* Progress Info */}
-              <div className="bg-green-50 rounded-xl p-4">
-                <p className="text-sm text-green-800">
-                  Proses ini biasanya memakan waktu 5-10 detik
-                </p>
+          {/* Bank Account Info */}
+          <div className="bg-gray-50 rounded-2xl p-6 space-y-3">
+            <h3 className="font-semibold text-gray-800 text-lg mb-4">Transfer ke Rekening:</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                <span className="text-gray-600">Bank</span>
+                <span className="font-semibold text-gray-800">Bank BCA</span>
               </div>
-            </>
-          ) : (
-            <>
-              {/* Error State */}
-              <div className="space-y-6">
-                <div className="text-red-600">
-                  <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-800">
-                  Gagal Mengambil Nomor BIB
-                </h2>
-                <p className="text-gray-600">
-                  Pembayaran Anda sudah berhasil, namun nomor BIB belum dapat ditampilkan.
-                  Silakan refresh halaman ini atau hubungi panitia.
-                </p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-                >
-                  Refresh Halaman
-                </button>
+              <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                <span className="text-gray-600">Nomor Rekening</span>
+                <span className="font-semibold text-gray-800">1234567890</span>
               </div>
-            </>
-          )}
+              <div className="flex justify-between items-center py-2">
+                <span className="text-gray-600">Atas Nama</span>
+                <span className="font-semibold text-gray-800">Panitia Trail Run</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Upload Proof */}
+          <div className="space-y-3">
+            <label className="block">
+              <span className="text-gray-700 font-medium mb-2 block">Upload Bukti Transfer *</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    // Check file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                      alert('Ukuran file maksimal 5MB');
+                      e.target.value = '';
+                      return;
+                    }
+                    setPaymentProofFile(file);
+                  }
+                }}
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-3 file:px-6
+                  file:rounded-full file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-green-50 file:text-green-700
+                  hover:file:bg-green-100
+                  cursor-pointer"
+              />
+            </label>
+            {paymentProofFile && (
+              <p className="text-sm text-green-600">
+                ✓ File terpilih: {paymentProofFile.name}
+              </p>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            onClick={handlePaymentProofUpload}
+            disabled={isUploadingProof || !paymentProofFile}
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-full font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {isUploadingProof ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                Mengupload...
+              </span>
+            ) : (
+              'Kirim Bukti Pembayaran'
+            )}
+          </button>
+
+          <p className="text-xs text-gray-500 text-center">
+            Bukti pembayaran akan diverifikasi oleh panitia. Anda akan dihubungi via email/WhatsApp untuk konfirmasi.
+          </p>
         </div>
       </div>
     );
@@ -563,9 +542,6 @@ export default function MalangFunRunPage() {
   if (isSubmitted) {
     const registrationChannelLabel = formData.registrationChannel
       ? registrationChannelLabels[formData.registrationChannel]
-      : "";
-    const participantCategoryLabel = formData.participantCategory
-      ? participantCategoryLabels[formData.participantCategory]
       : "";
     const genderLabel = formData.gender ? genderLabels[formData.gender] : "";
 
@@ -577,17 +553,12 @@ export default function MalangFunRunPage() {
               <CheckCircle className="w-16 h-16 text-green-500" />
             </div>
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Pembayaran Berhasil! 🎉</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Pendaftaran Berhasil! 🎉</h2>
               <p className="text-lg text-gray-600">
                 Terima kasih <span className="font-semibold text-emerald-600">{formData.name}</span> telah mendaftar!
               </p>
-            </div>
-
-            {/* BIB Number Highlight */}
-            <div className="text-center space-y-3">
-              <p className="text-gray-700 text-lg font-medium">Nomor BIB Anda Adalah</p>
-              <p className="text-5xl md:text-6xl font-bold text-green-600">
-                {bibNumber || "----"}
+              <p className="text-sm text-gray-500 mt-2">
+                Bukti pembayaran Anda sedang diverifikasi. Kami akan menghubungi Anda segera.
               </p>
             </div>
 
@@ -601,7 +572,6 @@ export default function MalangFunRunPage() {
               <p><span className="font-medium">Nama BIB:</span> {formData.bibName}</p>
               <p><span className="font-medium">Golongan Darah:</span> {formData.bloodType}</p>
               <p><span className="font-medium">Ukuran Jersey:</span> {formData.shirtSize}</p>
-              <p><span className="font-medium">Kategori Pendaftar:</span> {participantCategoryLabel}</p>
               <p>
                 <span className="font-medium">Kontak Darurat:</span> {formData.emergencyContactName} ({formData.emergencyContactPhone})
               </p>
@@ -1073,21 +1043,8 @@ export default function MalangFunRunPage() {
 
             {currentStep === 4 && (
               <section className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-gray-800">Pembayaran Pendaftaran</h3>
-                  <p className="text-gray-500">Pilih kategori pendaftar</p>
-                  <OptionButtonGroup
-                    value={formData.participantCategory}
-                    columns="grid-cols-1 md:grid-cols-2"
-                    onSelect={(value) => handleChange("participantCategory", value as FormData["participantCategory"])}
-                    options={[
-                      { value: "student", label: "Pelajar" },
-                      { value: "general", label: "Umum" },
-                    ]}
-                  />
-                  {errors.participantCategory && <p className="text-sm text-red-500">{errors.participantCategory}</p>}
-                </div>
-
+                <h3 className="text-xl font-bold text-gray-800">Syarat & Ketentuan</h3>
+                
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 text-left space-y-2">
                   <h4 className="font-semibold text-gray-800">Ringkasan Pendaftaran</h4>
                   <p>
@@ -1100,7 +1057,7 @@ export default function MalangFunRunPage() {
                     <span className="font-medium">Ukuran Jersey:</span> {formData.shirtSize || "-"}
                   </p>
                   <p>
-                    <span className="font-medium">Kategori:</span> {formData.participantCategory ? participantCategoryLabels[formData.participantCategory] : "-"}
+                    <span className="font-medium">Biaya Pendaftaran:</span> Rp 200.000
                   </p>
                 </div>
 
