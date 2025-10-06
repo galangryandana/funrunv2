@@ -692,9 +692,6 @@ export default function MalangFunRunPage() {
             Ubah Data Diri
           </button>
 
-          <p className="text-xs text-gray-500 text-center">
-            Bukti pembayaran akan diverifikasi oleh panitia. Anda akan dihubungi via WhatsApp untuk konfirmasi.
-          </p>
         </div>
       </div>
     );
@@ -754,13 +751,13 @@ export default function MalangFunRunPage() {
             </div>
             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
               <p className="text-sm text-yellow-800 whitespace-pre-line">
-                📧 Kami akan mengirimkan informasi pendaftaran ke email anda.
+                Screenshoot Halaman Ini (Nomor BIB & data peserta), tunjukkan beserta bukti pembayaran kepada crew panitia di Pos Registrasi untuk Pengambilan Race Pack.
                 {"\n\n"}
-                Screenshoot Pembayaran Berhasil beserta data register  diatas / tunjukkan informasi pendaftaran yang terkirim di email Anda kepada crew panitia kami di tempat Registrasi & Pengambilan Racepack.
+                Pengambilan Race Pack akan dilaksanakan pada tanggal 15 November 2025 di Venue Lapangan Desa Ranu Segaran pada pukul 10.00 - 21.00
                 {"\n\n"}
-                Pengambilan Race Pack akan dilaksanakan pada tanggal 15 November 2025 di Venue Ranu Segaran pada pukul 10.00 - 21.00
-                {"\n\n"}
-                Informasi lebih lanjut hubungi Call Center di 082233444460
+                Informasi lebih lanjut hubungi Call Center di
+                {"\n"}
+                082233444460
               </p>
             </div>
             <button
@@ -1260,7 +1257,7 @@ export default function MalangFunRunPage() {
                         className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
                       />
                       <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
-                        Dengan mendaftar atau berpartisipasi dalam Trail Run Ranu Segaran 2025, peserta menyetujui semua Ketentuan dan kondisi yang berlaku.
+                        Dengan mendaftar atau berpartisipasi dalam Trail Run Ranu Segaran 2025, peserta menyetujui semua Ketentuan dan kondisi yang berlaku
                       </span>
                     </label>
                     {errors.agreedToTerm1 && (
