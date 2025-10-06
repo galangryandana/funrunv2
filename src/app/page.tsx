@@ -704,9 +704,6 @@ export default function MalangFunRunPage() {
               <p className="text-lg text-gray-600">
                 Terima kasih <span className="font-semibold text-emerald-600">{formData.name}</span> telah mendaftar!
               </p>
-              <p className="text-sm text-gray-500 mt-2">
-                Bukti pembayaran Anda sedang diverifikasi. Kami akan menghubungi Anda segera.
-              </p>
             </div>
 
             {/* BIB Number Highlight */}
@@ -1239,7 +1236,7 @@ export default function MalangFunRunPage() {
                         type="checkbox"
                         checked={formData.agreedToTerm1}
                         onChange={(e) => handleChange("agreedToTerm1", e.target.checked)}
-                        className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                        className="flex-shrink-0 mt-0.5 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
                       />
                       <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
                         Dengan mendaftar atau berpartisipasi dalam Trail Run Ranu Segaran 2025, peserta menyetujui semua Ketentuan dan kondisi yang berlaku
@@ -1254,7 +1251,7 @@ export default function MalangFunRunPage() {
                         type="checkbox"
                         checked={formData.agreedToTerm2}
                         onChange={(e) => handleChange("agreedToTerm2", e.target.checked)}
-                        className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                        className="flex-shrink-0 mt-0.5 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
                       />
                       <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
                         Saya setuju bahwa panitia berhak menggunakan data dan dokumentasi peserta untuk keperluan pihak ketiga atau terkait
@@ -1269,7 +1266,7 @@ export default function MalangFunRunPage() {
                         type="checkbox"
                         checked={formData.agreedToTerm3}
                         onChange={(e) => handleChange("agreedToTerm3", e.target.checked)}
-                        className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                        className="flex-shrink-0 mt-0.5 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
                       />
                       <span className="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900">
                         Saya setuju bahwa biaya registrasi tidak dapat dikembalikan apabila saya batal berpartisipasi baik karena alasan pribadi maupun force majeure, seperti bencana alam atau wabah penyakit yang mengakibatkan acara tidak terselenggara
