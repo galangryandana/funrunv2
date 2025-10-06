@@ -183,6 +183,7 @@ export default function MalangFunRunPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [orderId, setOrderId] = useState<string>("");
   const [paymentAmount, setPaymentAmount] = useState<number>(0); // Unique amount: 200.001, 200.002, dst
+  const [bibNumber, setBibNumber] = useState<string>(""); // BIB number: 0001, 0002, dst
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
   const [isUploadingProof, setIsUploadingProof] = useState(false);
 
@@ -348,12 +349,14 @@ export default function MalangFunRunPage() {
         throw new Error(data.error || 'Gagal membuat pendaftaran');
       }
 
-      // Save orderId and unique payment amount
-      if (data.orderId && data.paymentAmount) {
+      // Save orderId, unique payment amount, and BIB number
+      if (data.orderId && data.paymentAmount && data.bibNumber) {
         console.log('Registration created:', data.orderId);
         console.log('Payment amount:', data.paymentAmount);
+        console.log('BIB number:', data.bibNumber);
         setOrderId(data.orderId);
         setPaymentAmount(data.paymentAmount);
+        setBibNumber(data.bibNumber);
         setIsLoading(false);
         setIsPaymentPage(true); // Show payment instruction page
       } else {
@@ -448,6 +451,17 @@ export default function MalangFunRunPage() {
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Instruksi Pembayaran</h2>
             <p className="text-gray-600">Silakan transfer sesuai nominal yang tertera</p>
+          </div>
+
+          {/* BIB Number Display */}
+          <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-6 text-center text-white">
+            <p className="text-sm opacity-90 mb-2">Nomor BIB Anda</p>
+            <p className="text-5xl md:text-6xl font-bold">
+              {bibNumber}
+            </p>
+            <p className="text-xs opacity-75 mt-2">
+              Simpan nomor ini untuk pengambilan race pack
+            </p>
           </div>
 
           {/* Payment Amount */}
@@ -559,6 +573,17 @@ export default function MalangFunRunPage() {
               </p>
               <p className="text-sm text-gray-500 mt-2">
                 Bukti pembayaran Anda sedang diverifikasi. Kami akan menghubungi Anda segera.
+              </p>
+            </div>
+
+            {/* BIB Number Highlight */}
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-6 text-center text-white">
+              <p className="text-sm opacity-90 mb-2">Nomor BIB Anda</p>
+              <p className="text-5xl md:text-6xl font-bold">
+                {bibNumber}
+              </p>
+              <p className="text-xs opacity-75 mt-2">
+                Simpan nomor ini untuk pengambilan race pack
               </p>
             </div>
 

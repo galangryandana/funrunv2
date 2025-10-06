@@ -69,13 +69,15 @@ export async function POST(request: Request) {
       throw new Error(result.error || 'Failed to create registration');
     }
 
-    // Get payment amount from Apps Script response
-    const paymentAmount = result.paymentAmount || 200001; // Default to first registration
+    // Get payment amount and BIB number from Apps Script response
+    const paymentAmount = result.paymentAmount || 200001;
+    const bibNumber = result.bibNumber || '0001';
 
     return NextResponse.json({
       success: true,
       orderId: orderId,
       paymentAmount: paymentAmount,
+      bibNumber: bibNumber,
       message: 'Pendaftaran berhasil dibuat',
     });
   } catch (error) {
