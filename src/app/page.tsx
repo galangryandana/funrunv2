@@ -199,16 +199,13 @@ export default function MalangFunRunPage() {
 
   // ✅ Load dari localStorage saat component mount
   useEffect(() => {
-    console.log('🔍 Checking localStorage...');
     const savedData = localStorage.getItem(STORAGE_KEY);
     
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
-        console.log('📦 Found data in localStorage:', parsed);
         
         if (parsed.formData && parsed.orderId && parsed.paymentAmount && parsed.bibNumber) {
-          console.log('✅ Valid data found, loading...');
           setFormData(parsed.formData);
           setOrderId(parsed.orderId);
           setPaymentAmount(parsed.paymentAmount);
@@ -216,17 +213,12 @@ export default function MalangFunRunPage() {
           setBibNumber(String(parsed.bibNumber).padStart(4, '0'));
           setIsEditMode(parsed.isEditMode || false); // ✅ Load isEditMode dari localStorage
           setIsPaymentPage(true); // Langsung ke halaman pembayaran
-          console.log('✅ Data loaded successfully, redirecting to payment page');
         } else {
-          console.log('⚠️ Data incomplete, clearing localStorage');
           localStorage.removeItem(STORAGE_KEY);
         }
       } catch (error) {
-        console.error('❌ Error parsing localStorage:', error);
         localStorage.removeItem(STORAGE_KEY);
       }
-    } else {
-      console.log('ℹ️ No saved data in localStorage');
     }
     
     setIsInitializing(false);
@@ -246,14 +238,12 @@ export default function MalangFunRunPage() {
         isEditMode, // ✅ Save isEditMode ke localStorage
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-      console.log('💾 Data auto-saved to localStorage, BIB:', formattedBibNumber);
     }
   }, [isPaymentPage, orderId, paymentAmount, bibNumber, formData, isEditMode]);
 
   // ✅ Clear localStorage
   const clearLocalStorage = () => {
     localStorage.removeItem(STORAGE_KEY);
-    console.log('Data cleared from localStorage');
   };
 
   const validators: Record<keyof FormData, () => string | undefined> = {
@@ -407,7 +397,6 @@ export default function MalangFunRunPage() {
       // ✅ Cek mode: CREATE atau UPDATE
       if (isEditMode) {
         // UPDATE existing registration
-        console.log('🔄 Update mode: updating existing registration');
         const response = await fetch('/api/registration/update', {
           method: 'POST',
           headers: {
@@ -427,7 +416,6 @@ export default function MalangFunRunPage() {
           throw new Error(data.error || 'Gagal mengupdate pendaftaran');
         }
 
-        console.log('✅ Registration updated successfully');
         // ✅ IMPORTANT: Re-ensure bibNumber format after update
         setBibNumber(String(bibNumber).padStart(4, '0'));
         setIsLoading(false);
@@ -436,7 +424,6 @@ export default function MalangFunRunPage() {
         
       } else {
         // CREATE new registration
-        console.log('➕ Create mode: creating new registration');
         const response = await fetch('/api/registration/create', {
           method: 'POST',
           headers: {
@@ -453,9 +440,6 @@ export default function MalangFunRunPage() {
 
         // Save orderId, unique payment amount, and BIB number
         if (data.orderId && data.paymentAmount && data.bibNumber) {
-          console.log('✅ Registration created:', data.orderId);
-          console.log('Payment amount:', data.paymentAmount);
-          console.log('BIB number:', data.bibNumber);
           setOrderId(data.orderId);
           setPaymentAmount(data.paymentAmount);
           // ✅ Ensure bibNumber is string with leading zeros (format: 0001, 0002, etc)
@@ -519,13 +503,11 @@ export default function MalangFunRunPage() {
 
   // ✅ Handle back to edit data
   const handleBackToEdit = () => {
-    console.log('📝 Edit mode activated, current BIB:', bibNumber);
     // ✅ Re-ensure bibNumber format before going back to edit
     setBibNumber(String(bibNumber).padStart(4, '0'));
     setIsPaymentPage(false);
     setCurrentStep(0); // Kembali ke step pertama
     // isEditMode tetap true, tidak berubah
-    console.log('📝 Will UPDATE on next submit, BIB ensured:', String(bibNumber).padStart(4, '0'));
   };
 
   // Handle payment proof upload
@@ -555,8 +537,6 @@ export default function MalangFunRunPage() {
       if (!response.ok) {
         throw new Error(data.error || 'Gagal mengupload bukti pembayaran');
       }
-
-      console.log('Payment proof uploaded:', data.driveLink);
       
       // ✅ Clear localStorage after successful upload
       clearLocalStorage();
