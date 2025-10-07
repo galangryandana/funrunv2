@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 type ShirtSize = "" | "S" | "M" | "L" | "XL" | "XXL";
+type Profession = "" | "student_smp_sma" | "student_university" | "employee" | "entrepreneur" | "civil_servant" | "other";
 type RegistrationChannel = "" | "community" | "company" | "organization" | "personal";
 type InfoSource = "" | "friend" | "social_media" | "billboard";
 type YesNoValue = "" | "yes" | "no";
@@ -34,6 +35,7 @@ type FormData = {
   address: string;
   nationalId: string;
   bibName: string;
+  profession: Profession;
   registrationChannel: RegistrationChannel;
   registrationChannelName: string;
   infoSource: InfoSource;
@@ -54,6 +56,15 @@ type FormData = {
 type FormErrors = Partial<Record<keyof FormData, string>>;
 
 const shirtSizes: ShirtSize[] = ["S", "M", "L", "XL", "XXL"];
+
+const professionLabels = {
+  student_smp_sma: "Pelajar SMP/SMA",
+  student_university: "Mahasiswa",
+  employee: "Karyawan",
+  entrepreneur: "Wiraswasta",
+  civil_servant: "Pegawai Negeri",
+  other: "Lain Lain",
+} as const;
 
 const genderLabels = { male: "Pria", female: "Wanita" } as const;
 const registrationChannelLabels = {
@@ -101,6 +112,7 @@ const stepConfigs: StepConfig[] = [
       "nationalId",
       "address",
       "bibName",
+      "profession",
       "registrationChannel",
       "registrationChannelName",
       "infoSource",
@@ -164,6 +176,7 @@ export default function MalangFunRunPage() {
     address: "",
     nationalId: "",
     bibName: "",
+    profession: "",
     registrationChannel: "",
     registrationChannelName: "",
     infoSource: "",
@@ -281,6 +294,7 @@ export default function MalangFunRunPage() {
       if (bibName.length > 15) return "Nama BIB maksimal 15 karakter";
       return undefined;
     },
+    profession: () => (!formData.profession ? "Profesi wajib dipilih" : undefined),
     registrationChannel: () =>
       !formData.registrationChannel ? "Pilih asal pendaftaran" : undefined,
     registrationChannelName: () => {
@@ -484,6 +498,7 @@ export default function MalangFunRunPage() {
       address: "",
       nationalId: "",
       bibName: "",
+      profession: "",
       registrationChannel: "",
       registrationChannelName: "",
       infoSource: "",
@@ -536,8 +551,8 @@ export default function MalangFunRunPage() {
       const uploadFormData = new FormData();
       uploadFormData.append('file', paymentProofFile);
       uploadFormData.append('orderId', orderId);
-      uploadFormData.append('userName', formData.name); // ✅ Tambah nama peserta
-      uploadFormData.append('nationalId', formData.nationalId); // ✅ Tambah nomor KTP
+      uploadFormData.append('userName', formData.name);
+      uploadFormData.append('bibNumber', bibNumber);
 
       const response = await fetch('/api/upload/payment-proof', {
         method: 'POST',
@@ -612,11 +627,11 @@ export default function MalangFunRunPage() {
               </div>
               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                 <span className="text-gray-600">Nomor Rekening</span>
-                <span className="font-semibold text-gray-800">1234567890</span>
+                <span className="font-semibold text-gray-800">0399996688</span>
               </div>
               <div className="flex justify-between items-center py-2">
                 <span className="text-gray-600">Atas Nama</span>
-                <span className="font-semibold text-gray-800">Panitia Trail Run</span>
+                <span className="font-semibold text-gray-800">JETS ORGANIZER CV</span>
               </div>
             </div>
           </div>
@@ -837,13 +852,13 @@ export default function MalangFunRunPage() {
             {
               icon: Heart,
               title: "Kesehatan & Keamanan",
-              description: "Tim medis profesional dan asuransi peserta",
+              description: "Tim kesehatan dan asuransi peserta",
               gradient: "from-green-600 to-lime-600",
             },
             {
               icon: Star,
               title: "Hadiah Podium",
-              description: "Uang pembinaan untuk finisher tercepat nomor 1, 2, dan 3",
+              description: "Uang pembinaan dan trophy untuk juara tercepat nomor 1, 2, dan 3",
               gradient: "from-teal-600 to-cyan-600",
             },
           ].map(({ icon: Icon, title, description, gradient }) => (
@@ -1021,7 +1036,7 @@ export default function MalangFunRunPage() {
                     </div>
                     <div>
                       <FieldText
-                        label="Nama di BIB Number *"
+                        label="Nama BIB (Dada) *"
                         name="bibName"
                         value={formData.bibName}
                         placeholder="Maksimal 15 karakter"
@@ -1032,6 +1047,24 @@ export default function MalangFunRunPage() {
                       <p className="text-sm text-gray-500 mt-1">Maksimal 15 karakter</p>
                     </div>
                   </div>
+                </div>
+
+                <div className="border-t pt-6 space-y-4">
+                  <h3 className="text-xl font-bold text-gray-800">Profesi *</h3>
+                  <OptionButtonGroup
+                    value={formData.profession}
+                    columns="grid-cols-1 md:grid-cols-2"
+                    onSelect={(value) => handleChange("profession", value as FormData["profession"])}
+                    options={[
+                      { value: "student_smp_sma", label: "Pelajar SMP/SMA" },
+                      { value: "student_university", label: "Mahasiswa" },
+                      { value: "employee", label: "Karyawan" },
+                      { value: "entrepreneur", label: "Wiraswasta" },
+                      { value: "civil_servant", label: "Pegawai Negeri" },
+                      { value: "other", label: "Lain Lain" },
+                    ]}
+                  />
+                  {errors.profession && <p className="text-sm text-red-500">{errors.profession}</p>}
                 </div>
 
                 <div className="border-t pt-6 space-y-4">
