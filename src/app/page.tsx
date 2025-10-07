@@ -1370,7 +1370,7 @@ export default function MalangFunRunPage() {
       </div>
 
       <footer className="mt-8 py-8 bg-black/50 text-white text-center">
-        <p className="mb-2">© 2025 Trail Run Ranu Segaran</p>
+        <p className="mb-2">© 2025 Trail Run Probolinggo - Ranu Segaran</p>
         <p className="text-sm opacity-75">Part of Seven Lakes Festival Kabupaten Probolinggo</p>
       </footer>
     </div>
