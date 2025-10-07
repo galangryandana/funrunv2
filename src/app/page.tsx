@@ -57,15 +57,6 @@ type FormErrors = Partial<Record<keyof FormData, string>>;
 
 const shirtSizes: ShirtSize[] = ["S", "M", "L", "XL", "XXL"];
 
-const professionLabels = {
-  student_smp_sma: "Pelajar SMP/SMA",
-  student_university: "Mahasiswa",
-  employee: "Karyawan",
-  entrepreneur: "Wiraswasta",
-  civil_servant: "Pegawai Negeri",
-  other: "Lain Lain",
-} as const;
-
 const genderLabels = { male: "Pria", female: "Wanita" } as const;
 const registrationChannelLabels = {
   community: "Komunitas",
