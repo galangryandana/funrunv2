@@ -74,7 +74,7 @@ export default function SimpleClosurePage() {
                 <h4 className="font-semibold text-gray-800 mb-2 text-center">Area Kota Probolinggo</h4>
                 <div className="text-gray-700 text-sm space-y-1">
                   <p className="text-center font-medium">Jumat, 14 November 2025</p>
-                  <p className="text-center">13.00 - 18.00</p>
+                  <p className="text-center">10.00 - 20.00</p>
                   <p className="text-center font-medium mt-2">Kantor Jets Organizer</p>
                   <p className="text-center text-xs">
                     Jl Mastrip Ruko Grand Pandawa No 5, Kota Probolinggo<br />
