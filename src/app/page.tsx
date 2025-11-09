@@ -18,7 +18,7 @@ import {
   Star,
   User,
 } from "lucide-react";
-import FormClosureNotice from "@/components/FormClosureNotice";
+import SimpleClosurePage from "../components/SimpleClosurePage";
 
 type ShirtSize = "" | "S" | "M" | "L" | "XL" | "XXL";
 type Profession = "" | "student_smp_sma" | "student_university" | "employee" | "entrepreneur" | "civil_servant" | "other";
@@ -569,6 +569,11 @@ export default function MalangFunRunPage() {
     );
   }
 
+  // Registration closure check - show closed page for new users when closed
+  if (isRegistrationClosed && !hasExistingRegistration) {
+    return <SimpleClosurePage />;
+  }
+
   // Payment instruction page
   if (isPaymentPage) {
     return (
@@ -853,12 +858,8 @@ export default function MalangFunRunPage() {
           ))}
         </div>
 
-        {/* Conditional Form Section - Show closure notice if closed and no existing registration */}
-        {isRegistrationClosed && !hasExistingRegistration ? (
-          <FormClosureNotice />
-        ) : (
-          <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-12">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Formulir Registrasi</h2>
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-12">
+          <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Formulir Registrasi</h2>
 
           <div className="space-y-8">
             <div className="space-y-4">
@@ -1347,7 +1348,6 @@ export default function MalangFunRunPage() {
             </div>
           </div>
         </div>
-        )}
       </div>
 
       <footer className="mt-8 py-8 bg-black/50 text-white text-center">

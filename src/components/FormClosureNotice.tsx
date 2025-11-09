@@ -63,6 +63,41 @@ export default function FormClosureNotice() {
           </div>
         </div>
 
+        {/* Race Pack Information */}
+        <div className="bg-gradient-to-r from-emerald-50 to-lime-50 rounded-2xl p-6 border border-emerald-100">
+          <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
+            Pengambilan Race Pack
+          </h3>
+          <div className="space-y-4">
+            {/* Kota Probolinggo Location */}
+            <div className="bg-white rounded-xl p-4">
+              <h4 className="font-semibold text-gray-800 mb-2 text-center">Area Kota Probolinggo</h4>
+              <div className="text-gray-700 text-sm space-y-1">
+                <p className="text-center font-medium">Jumat, 14 November 2025</p>
+                <p className="text-center">13.00 - 18.00</p>
+                <p className="text-center font-medium mt-2">Kantor Jets Organizer</p>
+                <p className="text-center text-xs">
+                  Jl Mastrip Ruko Grand Pandawa No 5, Kota Probolinggo<br />
+                  (Depan Gang Salak)
+                </p>
+              </div>
+            </div>
+            
+            {/* Venue Location */}
+            <div className="bg-white rounded-xl p-4">
+              <h4 className="font-semibold text-gray-800 mb-2 text-center">Area Venue</h4>
+              <div className="text-gray-700 text-sm space-y-1">
+                <p className="text-center font-medium">Sabtu, 15 November 2025</p>
+                <p className="text-center">13.00 - 18.00</p>
+                <p className="text-center font-medium mt-2">Venue Pendopo Ranu Segaran</p>
+                <p className="text-center text-xs">
+                  Kabupaten Probolinggo
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Contact Information */}
         <div className="bg-gray-50 rounded-2xl p-6">
           <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
